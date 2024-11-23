@@ -14,6 +14,8 @@ char * i;
 struct expr * e;
 struct cmd * c;
 void * none;
+char * sl;
+char cl;
 }
 
 // Terminals
@@ -31,6 +33,9 @@ void * none;
 %token <none> TM_LT TM_LE TM_GT TM_GE TM_EQ TM_NE
 %token <none> TM_PLUS TM_MINUS
 %token <none> TM_MUL TM_DIV TM_MOD
+// added tokens
+%token <none> TM_LEN TM_RS TM_WS TM_SL
+%token <none> TM_LSB TM_RSB TM_COMMA
 
 // Nonterminals
 %type <c> NT_WHOLE
@@ -51,6 +56,7 @@ void * none;
 
 %%
 
+// indicating the whole program (begin symbol)
 NT_WHOLE:
   NT_CMD
   {
@@ -59,6 +65,7 @@ NT_WHOLE:
   }
 ;
 
+// indicating the command
 NT_CMD:
   TM_VAR TM_IDENT
   {
@@ -88,9 +95,14 @@ NT_CMD:
   {
     $$ = (TWriteChar($3));
   }
+  // added rules for write string
+| TM_WS TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
+  {
+    $$ = (TWriteString($3));
+  }
 ;
 
-
+// indicating the basic expression
 NT_EXPR_2:
   TM_NAT
   {
@@ -128,8 +140,22 @@ NT_EXPR_2:
   {
     $$ = (TDeref($2));
   }
+  // added rules for len and read string
+| TM_LEN TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
+  {
+    $$ = (TLen($3));
+  }
+| TM_RS TM_LEFT_PAREN TM_RIGHT_PAREN
+  {
+    $$ = (TReadString());
+  }
+| NT_EXPR TM_LSB NT_EXPR TM_RSB
+  {
+    $$ = (TSubscriptAccess($1, $3));
+  }
 ;
 
+// indicating the expression
 NT_EXPR:
   NT_EXPR_2
   {

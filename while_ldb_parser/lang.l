@@ -72,10 +72,16 @@
 }
 
 \"([^"\\\n]|\\.)*\" { // string literal 
+    char *text = yytext + 1;        // skip opening quote
+    text[yyleng-2] = '\0';          // remove closing quote
+    yylval.sl = new_str(text, yyleng-2); 
     return TM_SL;
 }
 
 '([^'\\\n]|\\.)' { // char literal 
+    char *text = yytext + 1;        // skip opening quote
+    text[yyleng-2] = '\0';          // remove closing quote
+    yylval.cl = text[0];            // store the character value
     return TM_CL;
 }
 

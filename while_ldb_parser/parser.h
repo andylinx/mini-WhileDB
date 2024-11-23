@@ -86,9 +86,8 @@ extern int yydebug;
     TM_MINUS = 287,                /* TM_MINUS  */
     TM_MUL = 288,                  /* TM_MUL  */
     TM_DIV = 289,                  /* TM_DIV  */
-    TM_MOD = 290,                   /* TM_MOD  */
-
-
+    TM_MOD = 290,                  /* TM_MOD  */
+    
     TM_COMMA = 291, /* TM_COMMA , for initalizer list */
     TM_LSB = 292, /* TM_LSB left square bracket [ */
     TM_RSB = 293, /* TM_RSB right square bracket ] */
@@ -112,8 +111,10 @@ char * i;
 struct expr * e;
 struct cmd * c;
 void * none;
+char * sl;
+char cl;
 
-#line 107 "parser.h"
+#line 116 "parser.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

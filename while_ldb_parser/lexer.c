@@ -945,19 +945,25 @@ case 16:
 YY_RULE_SETUP
 #line 74 "lang.l"
 { // string literal 
+    char *text = yytext + 1;        // skip opening quote
+    text[yyleng-2] = '\0';          // remove closing quote
+    yylval.sl = new_str(text, yyleng-2); 
     return TM_SL;
 }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 78 "lang.l"
+#line 81 "lang.l"
 { // char literal 
+    char *text = yytext + 1;        // skip opening quote
+    text[yyleng-2] = '\0';          // remove closing quote
+    yylval.cl = text[0];            // store the character value
     return TM_CL;
 }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 84 "lang.l"
+#line 90 "lang.l"
 {
     yylval.i = new_str(yytext, yyleng);
     return TM_IDENT;
@@ -965,161 +971,161 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 89 "lang.l"
+#line 95 "lang.l"
 {
     return TM_SEMICOL;
     }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 93 "lang.l"
+#line 99 "lang.l"
 {
     return TM_LEFT_PAREN;
     }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 97 "lang.l"
+#line 103 "lang.l"
 {
     return TM_RIGHT_PAREN;
     }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 101 "lang.l"
+#line 107 "lang.l"
 {
     return TM_LEFT_BRACE;
     }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 105 "lang.l"
+#line 111 "lang.l"
 {
     return TM_RIGHT_BRACE;
     }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 109 "lang.l"
+#line 115 "lang.l"
 {
     return TM_PLUS;
     }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 113 "lang.l"
+#line 119 "lang.l"
 {
     return TM_MINUS;
     }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 117 "lang.l"
+#line 123 "lang.l"
 {
     return TM_MUL;
     }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 121 "lang.l"
+#line 127 "lang.l"
 {
     return TM_DIV;
     }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 125 "lang.l"
+#line 131 "lang.l"
 {
     return TM_MOD;
     }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 129 "lang.l"
+#line 135 "lang.l"
 {
     return TM_LT;
     }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 133 "lang.l"
+#line 139 "lang.l"
 {
     return TM_GT;
     }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 137 "lang.l"
+#line 143 "lang.l"
 {
     return TM_LE;
     }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 141 "lang.l"
+#line 147 "lang.l"
 {
     return TM_GE;
     }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 145 "lang.l"
+#line 151 "lang.l"
 {
     return TM_EQ;
     }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 149 "lang.l"
+#line 155 "lang.l"
 {
     return TM_NE;
     }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 153 "lang.l"
+#line 159 "lang.l"
 {
     return TM_ASGNOP;
     }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 157 "lang.l"
+#line 163 "lang.l"
 {
     return TM_AND;
     }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 161 "lang.l"
+#line 167 "lang.l"
 {
     return TM_OR;
     }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 165 "lang.l"
+#line 171 "lang.l"
 {
     return TM_NOT;
     }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 171 "lang.l"
+#line 177 "lang.l"
 { // new tokens for simple symbols [] ,
     return TM_LSB;
     }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 175 "lang.l"
+#line 181 "lang.l"
 {
     return TM_RSB;
     }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 179 "lang.l"
+#line 185 "lang.l"
 {
     return TM_COMMA;
     }
@@ -1127,21 +1133,21 @@ YY_RULE_SETUP
 case 42:
 /* rule 42 can match eol */
 YY_RULE_SETUP
-#line 183 "lang.l"
+#line 189 "lang.l"
 { };
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 185 "lang.l"
+#line 191 "lang.l"
 {printf("%s",yytext);
      return -1; }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 187 "lang.l"
+#line 193 "lang.l"
 ECHO;
 	YY_BREAK
-#line 1145 "lexer.c"
+#line 1151 "lexer.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2158,6 +2164,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 187 "lang.l"
+#line 193 "lang.l"
 
 

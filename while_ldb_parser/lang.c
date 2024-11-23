@@ -95,7 +95,7 @@ struct expr * TReadString() {
 }
 
 struct expr * TSubscriptAccess(struct expr * array_arg, struct expr * index_arg) {
-  struct expr * res = new_cmd_ptr();
+  struct expr * res = new_expr_ptr();
   res -> t = T_SA;
   res -> d.SA.array_arg = array_arg;
   res -> d.SA.index_arg = index_arg;
@@ -168,6 +168,14 @@ struct cmd * TWriteString(struct expr * arg) {
   res -> t = T_WS;
   res -> d.WS.arg = arg;
   return res;
+}
+
+struct cmd * TDeclArray(char * name, unsigned int size) {
+    struct cmd * c = (struct cmd *)malloc(sizeof(struct cmd));
+    c->t = T_DECL_ARRAY;
+    c->d.DECL_ARRAY.name = name;
+    c->d.DECL_ARRAY.size = size;
+    return c;
 }
 
 
