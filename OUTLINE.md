@@ -6,27 +6,28 @@ In addition to basic whileDB language features, we support the following feature
 - Uniformly typed features:
   - both int and char are considered nature numbers,
     the difference only occurs at function intepretation level.
+  - pointers are also considered nature numbers.
 ```cpp
   var a, c;
   a = 1;
   c = 'c';
+  *a; // valid dereference, but no range check.
 ```
 
 
 - Array class (fixed length).
   - build-in function: len(a: array): -> ⟦length of array a⟧.
-  - pointer addtion (only valid within array range).
-  - subscript style writable access with range check.
+  - writable subscript access with range check. 
+    - deemed as new expression type, not binary operator.
   - '=' assignment. (copy first elements till one array reaches range limit, remaining elements of receiver are set to 0)
   <!-- - '<=>' lexicographical comparison. -->
-  <!-- - '+' concatenation. --> -->
+  <!-- - '+' concatenation. -->
   <!-- - build-in function: to_array(x, n) -> n-element array containing x's. -->
 ```cpp
 var a[10];
-*(a + 1) = 1; // a[1]
+*(a + 1) = 1; // a[1], no range check
 a[1] = 1;
 var b = 1;
-// a = to_array(b, 1); // assign a[0] = b, other values are set to 0
 ```
 
 - Char literal. (C style, using single quote, string are considered array of char)
@@ -61,12 +62,13 @@ var a, b = 3, c; // declare a, b, c. initialize b = 3. (not a = 3, b = c !!! not
 ```
 
 - Helper function:
-  - read_string(a: array): read in a string deliminated by '[ \n\t\rEOF]', and write to a[] as nature numbers. (overflow part is discarded.)
-  - write_string(a: array): interpret a's elements as char and write sequentially. 
+  - EXPR: read_string(): read in a string deliminated by '[ \n\t\rEOF]', and return it. (buffer is automatically managed to avoid overflow.)
+  - CMD: write_string(a: array): interpret a's elements as char and write sequentially. 
 
 # Lexer:
 
 new symbols:
++ , // to support initalizer list only
 + [
 + ]
 + '
@@ -79,12 +81,22 @@ new symbols:
 deprecated symbols:
 + none
 
+new tokens:
++ COMMA: ,
++ LSB: [
++ RSB: ]
++ CL: char literal
++ SL: string literal
+<!-- + ILL: initializer list literal -->
++ LEN: len
++ RS: read_string
++ WS: write_string
+
 # Syntax:
 <!-- - <=>: comparison should support array. -->
 - =: should support array.
 <!-- - \+: should support array. -->
 - []: array subscript access.
-- +-: should support pointers.
 - '': char literal.
 - "": string literal.
 - {}: initializer list literal.
@@ -92,6 +104,14 @@ deprecated symbols:
 - len: length of array.
 - read_string: read in chars to a given array.
 - write_string: write a given array as chars.
+
+new expression types:
+- LEN: len
+- RS: read_string
+- SA: [] subscript access
+
+new command types:
+- WS: write_string
 
 # Interpreter:
 

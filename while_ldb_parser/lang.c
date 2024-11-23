@@ -3,6 +3,8 @@
 #include <string.h>
 #include "lang.h"
 
+// expression constructors
+
 struct expr * new_expr_ptr() {
   struct expr * res = (struct expr *) malloc(sizeof(struct expr));
   if (res == NULL) {
@@ -78,6 +80,34 @@ struct expr * TReadChar() {
   return res;
 }
 
+// new expressions
+struct expr * TLen(struct expr * arg) {
+  struct expr * res = new_expr_ptr();
+  res -> t = T_LEN;
+  res -> d.LEN.arg = arg;
+  return res;
+}
+
+struct expr * TReadString() {
+  struct expr * res = new_expr_ptr();
+  res -> t = T_RS;
+  return res;
+}
+
+struct expr * TSubscriptAccess(struct expr * array_arg, struct expr * index_arg) {
+  struct expr * res = new_cmd_ptr();
+  res -> t = T_SA;
+  res -> d.SA.array_arg = array_arg;
+  res -> d.SA.index_arg = index_arg;
+  return res;
+}
+
+
+
+
+// command constructors
+
+
 struct cmd * TDecl(char * name) {
   struct cmd * res = new_cmd_ptr();
   res -> t = T_DECL;
@@ -131,6 +161,19 @@ struct cmd * TWriteChar(struct expr * arg) {
   res -> d.WC.arg = arg;
   return res;
 }
+
+// new commands
+struct cmd * TWriteString(struct expr * arg) {
+  struct cmd * res = new_cmd_ptr();
+  res -> t = T_WS;
+  res -> d.WS.arg = arg;
+  return res;
+}
+
+
+
+
+// helper functions
 
 void print_binop(enum BinOpType op) {
   switch (op) {
@@ -225,6 +268,22 @@ void print_expr(struct expr * e) {
   case T_RC:
     printf("READ_CHAR()");
     break;
+
+  // new types
+  case T_LEN:
+    printf("LEN(");
+    print_expr(e -> d.LEN.arg);
+    printf(")");
+    break;
+  case T_RS:
+    printf("READ_STRING()");
+    break;
+  case T_SA:
+    print_expr(e -> d.SA.array_arg);
+    printf("[");
+    print_expr(e -> d.SA.index_arg);
+    printf("]");
+    break;
   }
 }
 
@@ -269,6 +328,13 @@ void print_cmd(struct cmd * c) {
     printf(")");
     break;
   case T_WC:
+    printf("WRITE_CHAR(");
+    print_expr(c -> d.WC.arg);
+    printf(")");
+    break;
+
+  // new types
+  case T_WS:
     printf("WRITE_CHAR(");
     print_expr(c -> d.WC.arg);
     printf(")");

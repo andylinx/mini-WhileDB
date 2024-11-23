@@ -86,7 +86,17 @@ extern int yydebug;
     TM_MINUS = 287,                /* TM_MINUS  */
     TM_MUL = 288,                  /* TM_MUL  */
     TM_DIV = 289,                  /* TM_DIV  */
-    TM_MOD = 290                   /* TM_MOD  */
+    TM_MOD = 290,                   /* TM_MOD  */
+
+
+    TM_COMMA = 291, /* TM_COMMA , for initalizer list */
+    TM_LSB = 292, /* TM_LSB left square bracket [ */
+    TM_RSB = 293, /* TM_RSB right square bracket ] */
+    TM_CL = 294, /* TM_CL char literal, single quote ' */
+    TM_SL = 295, /* TM_SL string literal, double quote ' */
+    TM_LEN = 296, /* TM_LEN len */
+    TM_RS = 297, /* TM_RS read string */
+    TM_WS = 298 /* TM_WS write string */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif

@@ -56,6 +56,31 @@
     return TM_WC;
 }
 
+
+
+"len": { // len
+    // new tokens for key words and CL, SL
+    return TM_LEN;
+}
+
+"read_string" { // read string
+    return TM_RS;
+}
+
+"write_string" { // write string
+    return TM_WS;
+}
+
+\"([^"\\\n]|\\.)*\" { // string literal 
+    return TM_SL;
+}
+
+'([^'\\\n]|\\.)' { // char literal 
+    return TM_CL;
+}
+
+
+
 [_A-Za-z][_A-Za-z0-9]* {
     yylval.i = new_str(yytext, yyleng);
     return TM_IDENT;
@@ -139,6 +164,20 @@
 
 "!" {
     return TM_NOT;
+    }
+
+
+
+"[" { // new tokens for simple symbols [] ,
+    return TM_LSB;
+    }
+
+"]" {
+    return TM_RSB;
+    }
+
+"," {
+    return TM_COMMA;
     }
 
 [ \t\n\r]    { };
