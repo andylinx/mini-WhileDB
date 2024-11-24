@@ -58,7 +58,7 @@
 
 
 
-"len": { // len
+"len" { // len
     // new tokens for key words and CL, SL
     return TM_LEN;
 }

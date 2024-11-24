@@ -87,15 +87,14 @@ extern int yydebug;
     TM_MUL = 288,                  /* TM_MUL  */
     TM_DIV = 289,                  /* TM_DIV  */
     TM_MOD = 290,                  /* TM_MOD  */
-
-    TM_COMMA = 291, /* TM_COMMA , for initalizer list */
-    TM_LSB = 292, /* TM_LSB left square bracket [ */
-    TM_RSB = 293, /* TM_RSB right square bracket ] */
-    TM_CL = 294, /* TM_CL char literal, single quote ' */
-    TM_SL = 295, /* TM_SL string literal, double quote ' */
-    TM_LEN = 296, /* TM_LEN len */
-    TM_RS = 297, /* TM_RS read string */
-    TM_WS = 298 /* TM_WS write string */
+    TM_LEN = 291,                  /* TM_LEN  */
+    TM_RS = 292,                   /* TM_RS  */
+    TM_WS = 293,                   /* TM_WS  */
+    TM_LSB = 294,                  /* TM_LSB  */
+    TM_RSB = 295,                  /* TM_RSB  */
+    TM_COMMA = 296,                /* TM_COMMA  */
+    TM_SL = 297,                   /* TM_SL  */
+    TM_CL = 298                    /* TM_CL  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -106,15 +105,17 @@ union YYSTYPE
 {
 #line 11 "lang.y"
 
-unsigned int n;
-char * i;
-struct expr * e;
-struct cmd * c;
-void * none;
-char * sl;
-char cl;
+	unsigned int n;
+	char * i;
+	struct expr * e;
+	struct cmd * c;
+	struct decl * d;
+	void * none;
+	char * sl;
+	char cl;
+	struct expr_list * el;
 
-#line 116 "parser.h"
+#line 119 "parser.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

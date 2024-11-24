@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "lang.h"
-#include "parser.h"
+// #include "parser.h"
 
 // expression constructors
 
@@ -109,10 +109,10 @@ struct expr * TSubscriptAccess(struct expr * array_arg, struct expr * index_arg)
 // command constructors
 
 
-struct cmd * TDecl(char * name) {
+struct cmd * TDecl(struct decl * declaration) {
   struct cmd * res = new_cmd_ptr();
   res -> t = T_DECL;
-  res -> d.DECL.name = name;
+  res -> d.DECL.declaration = declaration;
   return res;
 }
 
@@ -171,7 +171,13 @@ struct cmd * TWriteString(struct expr * arg) {
   return res;
 }
 
-
+struct cmd * TAsgnDeref(struct expr * left, struct expr * right) {
+  struct cmd * res = new_cmd_ptr();
+  res -> t = T_ASGNDEREF;
+  res -> d.ASGN.left = left;
+  res -> d.ASGN.right = right;
+  return res;
+}
 
 // helper functions
 
@@ -290,7 +296,7 @@ void print_expr(struct expr * e) {
 void print_cmd(struct cmd * c) {
   switch (c -> t) {
   case T_DECL:
-    printf("DECL(%s)", c -> d.DECL.name);
+    print_decl(c -> d.DECL.declaration);
     break;
   case T_ASGN:
     printf("ASGN(");
@@ -339,6 +345,13 @@ void print_cmd(struct cmd * c) {
     print_expr(c -> d.WC.arg);
     printf(")");
     break;
+  case T_ASGNDEREF:
+    printf("ASGNDEREF(");
+    print_expr(c -> d.ASGN.left);
+    printf(",");
+    print_expr(c -> d.ASGN.right);
+    printf(")");
+    break;
   }
 }
 
@@ -368,66 +381,111 @@ char * new_str(char * str, int len) {
   return res;
 }
 
-const char* get_token_name(int token) {
-    switch (token) {
-        case YYEOF: return "YYEOF";
-        case YYerror: return "YYerror";
-        case YYUNDEF: return "YYUNDEF";
-        case TM_NAT: return "TM_NAT";
-        case TM_IDENT: return "TM_IDENT";
-        case TM_LEFT_BRACE: return "TM_LEFT_BRACE";
-        case TM_RIGHT_BRACE: return "TM_RIGHT_BRACE";
-        case TM_LEFT_PAREN: return "TM_LEFT_PAREN";
-        case TM_RIGHT_PAREN: return "TM_RIGHT_PAREN";
-        case TM_SEMICOL: return "TM_SEMICOL";
-        case TM_MALLOC: return "TM_MALLOC";
-        case TM_RI: return "TM_RI";
-        case TM_RC: return "TM_RC";
-        case TM_WI: return "TM_WI";
-        case TM_WC: return "TM_WC";
-        case TM_VAR: return "TM_VAR";
-        case TM_IF: return "TM_IF";
-        case TM_THEN: return "TM_THEN";
-        case TM_ELSE: return "TM_ELSE";
-        case TM_WHILE: return "TM_WHILE";
-        case TM_DO: return "TM_DO";
-        case TM_ASGNOP: return "TM_ASGNOP";
-        case TM_OR: return "TM_OR";
-        case TM_AND: return "TM_AND";
-        case TM_NOT: return "TM_NOT";
-        case TM_LT: return "TM_LT";
-        case TM_LE: return "TM_LE";
-        case TM_GT: return "TM_GT";
-        case TM_GE: return "TM_GE";
-        case TM_EQ: return "TM_EQ";
-        case TM_NE: return "TM_NE";
-        case TM_PLUS: return "TM_PLUS";
-        case TM_MINUS: return "TM_MINUS";
-        case TM_MUL: return "TM_MUL";
-        case TM_DIV: return "TM_DIV";
-        case TM_MOD: return "TM_MOD";
-        case TM_COMMA: return "TM_COMMA";
-        case TM_LSB: return "TM_LSB";
-        case TM_RSB: return "TM_RSB";
-        case TM_CL: return "TM_CL";
-        case TM_SL: return "TM_SL";
-        case TM_LEN: return "TM_LEN";
-        case TM_RS: return "TM_RS";
-        case TM_WS: return "TM_WS";
-        default: return "UNKNOWN_TOKEN";
-    }
+struct decl * new_decl_ptr() {
+  struct decl * res = (struct decl *) malloc(sizeof(struct decl));
+  if (res == NULL) {
+    printf("Failure in malloc.\n");
+    exit(0);
+  }
+  return res;
 }
 
-void print_token(int token) {
-    const char* token_name = get_token_name(token);
-    
-    if (token == TM_NAT) {
-        printf("%s(%d)\n", token_name, yylval.n);
-    }
-    else if (token == TM_IDENT) {
-        printf("%s(%s)\n", token_name, yylval.i);
-    }
-    else {
-        printf("%s\n", token_name);
-    }
+struct decl * TDeclVar(char * name) {
+  struct decl * res = new_decl_ptr();
+  res -> t = T_DECLVAR;
+  res -> d.DECLVAR.name = name;
+  return res;
 }
+
+struct decl * TDeclArray(char * name, struct expr * size) {
+  struct decl * res = new_decl_ptr();
+  res -> t = T_DECLARRAY;
+  res -> d.DECLARRAY.name = name;
+  res -> d.DECLARRAY.size = size;
+  return res;
+}
+
+struct decl * TDeclSeq(struct decl * left, struct decl * right) {
+  struct decl * res = new_decl_ptr();
+  res -> t = T_DECLSEQ;
+  res -> d.DECLSEQ.left = left;
+  res -> d.DECLSEQ.right = right;
+  return res;
+}
+
+struct expr_list * new_expr_list_ptr() {
+  struct expr_list * res = (struct expr_list *) malloc(sizeof(struct expr_list));
+  if (res == NULL) {
+    printf("Failure in malloc.\n");
+    exit(0);
+  }
+  return res;
+}
+
+struct decl * TDeclVarInit(char * name, struct expr * init) {
+  struct decl * res = new_decl_ptr();
+  res -> t = T_DECLVARINIT;
+  res -> d.DECLVARINIT.name = name;
+  res -> d.DECLVARINIT.init = init;
+  return res;
+}
+
+struct decl * TDeclArrayInit(char * name, struct expr * size, struct expr_list * init) {
+  struct decl * res = new_decl_ptr();
+  res -> t = T_DECLARARRAYINIT;
+  res -> d.DECLARARRAYINIT.name = name;
+  res -> d.DECLARARRAYINIT.size = size;
+  res -> d.DECLARARRAYINIT.init = init;
+  return res;
+}
+
+struct expr_list * TExprList(struct expr * head, struct expr_list * tail) {
+  struct expr_list * res = new_expr_list_ptr();
+  res -> head = head;
+  res -> tail = tail;
+  return res;
+}
+
+// Move print_expr_list implementation before print_decl
+void print_expr_list(struct expr_list * l) {
+  if (l == NULL) return;
+  print_expr(l -> head);
+  if (l -> tail != NULL) {
+    printf(",");
+    print_expr_list(l -> tail);
+  }
+}
+
+void print_decl(struct decl * d) {
+  switch (d -> t) {
+  case T_DECLVAR:
+    printf("DECLVAR(%s)", d -> d.DECLVAR.name);
+    break;
+  case T_DECLARRAY:
+    printf("DECLARRAY(%s,", d -> d.DECLARRAY.name);
+    print_expr(d -> d.DECLARRAY.size);
+    printf(")");
+    break;
+  case T_DECLSEQ:
+    printf("DECLSEQ(");
+    print_decl(d -> d.DECLSEQ.left);
+    printf(",");
+    print_decl(d -> d.DECLSEQ.right);
+    printf(")");
+    break;
+  case T_DECLVARINIT:
+    printf("DECLVARINIT(%s,", d -> d.DECLVARINIT.name);
+    print_expr(d -> d.DECLVARINIT.init);
+    printf(")");
+    break;
+  case T_DECLARARRAYINIT:
+    printf("DECLARARRAYINIT(%s,", d -> d.DECLARARRAYINIT.name);
+    print_expr(d -> d.DECLARARRAYINIT.size);
+    printf(",");
+    print_expr_list(d -> d.DECLARARRAYINIT.init);
+    printf(")");
+    break;
+  }
+}
+
+

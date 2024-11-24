@@ -1,21 +1,23 @@
 %{
-	// this part is copied to the beginning of the parser 
+	#define YYDEBUG 1
 	#include <stdio.h>
 	#include "lang.h"
 	#include "lexer.h"
 	void yyerror(char *);
 	int yylex(void);
-        struct cmd * root;
+	struct cmd * root;
 %}
 
 %union {
-unsigned int n;
-char * i;
-struct expr * e;
-struct cmd * c;
-void * none;
-char * sl;
-char cl;
+	unsigned int n;
+	char * i;
+	struct expr * e;
+	struct cmd * c;
+	struct decl * d;
+	void * none;
+	char * sl;
+	char cl;
+	struct expr_list * el;
 }
 
 // Terminals
@@ -34,27 +36,31 @@ char cl;
 %token <none> TM_PLUS TM_MINUS
 %token <none> TM_MUL TM_DIV TM_MOD
 // added tokens
-%token <none> TM_LEN TM_RS TM_WS TM_SL
+%token <none> TM_LEN TM_RS TM_WS
 %token <none> TM_LSB TM_RSB TM_COMMA
+%token <sl> TM_SL
+%token <cl> TM_CL
 
 // Nonterminals
 %type <c> NT_WHOLE
 %type <c> NT_CMD
 %type <e> NT_EXPR_2
 %type <e> NT_EXPR
+%type <el> NT_EXPR_LIST
+%type <d> NT_DECL
 
 // Priority
 %nonassoc TM_VAR
-%nonassoc TM_LSB TM_RSB
+%left TM_SEMICOL
+%left TM_LSB TM_RSB
+%right TM_NOT
 %nonassoc TM_ASGNOP
 %left TM_OR
 %left TM_AND
 %left TM_LT TM_LE TM_GT TM_GE TM_EQ TM_NE
 %left TM_PLUS TM_MINUS
 %left TM_MUL TM_DIV TM_MOD
-%right TM_NOT
 %left TM_LEFT_PAREN TM_RIGHT_PAREN
-%right TM_SEMICOL
 
 %%
 
@@ -67,19 +73,68 @@ NT_WHOLE:
   }
 ;
 
+// added non-terminal for declaration expression
+// indicating the declaration expression
+// including variable declaration, array declaration, and support comma
+
+// furthermore, we should support array initialization and variable initialization
+// thus we add NT_EXPR_LIST
+NT_DECL:
+  TM_IDENT
+  {
+    $$ = TDeclVar($1);
+  }
+| TM_IDENT TM_ASGNOP NT_EXPR
+  {
+    $$ = TDeclVarInit($1, $3);
+  }
+| TM_IDENT TM_LSB NT_EXPR TM_RSB
+  {
+    $$ = TDeclArray($1, $3);
+  }
+| TM_IDENT TM_LSB NT_EXPR TM_RSB TM_ASGNOP TM_LEFT_BRACE NT_EXPR_LIST TM_RIGHT_BRACE
+  {
+    $$ = TDeclArrayInit($1, $3, $7);
+  }
+| TM_IDENT TM_COMMA NT_DECL
+  {
+    $$ = TDeclSeq(TDeclVar($1), $3);
+  }
+| TM_IDENT TM_ASGNOP NT_EXPR TM_COMMA NT_DECL
+  {
+    $$ = TDeclSeq(TDeclVarInit($1, $3), $5);
+  }
+| TM_IDENT TM_LSB NT_EXPR TM_RSB TM_COMMA NT_DECL
+  {
+    $$ = TDeclSeq(TDeclArray($1, $3), $6);
+  }
+| TM_IDENT TM_LSB NT_EXPR TM_RSB TM_ASGNOP TM_LEFT_BRACE NT_EXPR_LIST TM_RIGHT_BRACE TM_COMMA NT_DECL
+  {
+    $$ = TDeclSeq(TDeclArrayInit($1, $3, $7), $10);
+  }
+;
+
+// Add new non-terminal for expression lists (array initialization)
+NT_EXPR_LIST:
+  NT_EXPR
+  {
+    $$ = TExprList($1, NULL);
+  }
+| NT_EXPR TM_COMMA NT_EXPR_LIST
+  {
+    $$ = TExprList($1, $3);
+  }
+;
+
 // indicating the command
 NT_CMD:
-  TM_VAR TM_IDENT %prec TM_VAR
-  {
-    $$ = TDecl($2);
-  }
-| TM_VAR TM_IDENT TM_LSB TM_NAT TM_RSB
+  TM_VAR NT_DECL
   {
     $$ = TDecl($2);
   }
 | NT_EXPR TM_ASGNOP NT_EXPR
   {
-    $$ = (TAsgn($1,$3));
+    $$ = TAsgn($1, $3);
   }
 | NT_CMD TM_SEMICOL NT_CMD
   {
@@ -105,6 +160,10 @@ NT_CMD:
 | TM_WS TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
   {
     $$ = (TWriteString($3));
+  }
+| TM_MUL NT_EXPR TM_ASGNOP NT_EXPR
+  {
+    $$ = TAsgnDeref($2, $4);
   }
 ;
 
@@ -134,17 +193,13 @@ NT_EXPR_2:
   {
     $$ = (TMalloc($3));
   }
-| TM_NOT NT_EXPR_2
+| TM_NOT NT_EXPR
   {
     $$ = (TUnOp(T_NOT,$2));
   }
-| TM_MINUS NT_EXPR_2
+| TM_MINUS NT_EXPR
   {
     $$ = TUnOp(T_UMINUS,$2);
-  }
-| TM_MUL NT_EXPR_2
-  {
-    $$ = (TDeref($2));
   }
   // added rules for len and read string
 | TM_LEN TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
@@ -155,9 +210,13 @@ NT_EXPR_2:
   {
     $$ = TReadString();
   }
-| NT_EXPR TM_LSB NT_EXPR TM_RSB
+| TM_IDENT TM_LSB NT_EXPR TM_RSB
   {
-    $$ = (TSubscriptAccess($1, $3));
+    $$ = TSubscriptAccess(TVar($1), $3);
+  }
+| TM_MUL NT_EXPR
+  {
+    $$ = TDeref($2);
   }
 ;
 

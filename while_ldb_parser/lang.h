@@ -49,9 +49,16 @@ enum CmdType {
   T_WHILE, // while
   T_WI, // write int
   T_WC, // write char
-  
-  // new types
-  T_WS // write string
+  T_WS, // write string
+  T_ASGNDEREF  // *left = right
+};
+
+enum DeclType {
+  T_DECLVAR,
+  T_DECLARRAY,
+  T_DECLSEQ,
+  T_DECLVARINIT,
+  T_DECLARARRAYINIT
 };
 
 struct expr {
@@ -76,7 +83,7 @@ struct expr {
 struct cmd {
   enum CmdType t;
   union {
-    struct {char * name; } DECL;
+    struct {struct decl * declaration; } DECL;
     struct {struct expr * left; struct expr * right; } ASGN;
     struct {struct cmd * left; struct cmd * right; } SEQ;
     struct {struct expr * cond; struct cmd * left; struct cmd * right; } IF;
@@ -86,7 +93,39 @@ struct cmd {
 
     // new commands
     struct {struct expr * arg; } WS;
+    struct {struct expr * left; struct expr * right; } ASGNDEREF;
   } d;
+};
+
+struct decl {
+  enum DeclType t;
+  union {
+    struct {
+      char * name;
+    } DECLVAR;
+    struct {
+      char * name;
+      struct expr * size;
+    } DECLARRAY;
+    struct {
+      struct decl * left;
+      struct decl * right;
+    } DECLSEQ;
+    struct {
+      char * name;
+      struct expr * init;
+    } DECLVARINIT;
+    struct {
+      char * name;
+      struct expr * size;
+      struct expr_list * init;
+    } DECLARARRAYINIT;
+  } d;
+};
+
+struct expr_list {
+  struct expr * head;
+  struct expr_list * tail;
 };
 
 // expression constructors
@@ -105,7 +144,7 @@ struct expr * TReadString();
 struct expr * TSubscriptAccess(struct expr * array_arg, struct expr * index_arg);
 
 // command constructors
-struct cmd * TDecl(char * name);
+struct cmd * TDecl(struct decl * declaration);
 struct cmd * TAsgn(struct expr * left, struct expr * right);
 struct cmd * TSeq(struct cmd * left, struct cmd * right);
 struct cmd * TIf(struct expr * cond, struct cmd * left, struct cmd * right);
@@ -115,16 +154,25 @@ struct cmd * TWriteChar(struct expr * arg);
 
 //new commands
 struct cmd * TWriteString(struct expr * arg);
+struct cmd * TAsgnDeref(struct expr * left, struct expr * right);
 
 // helper functions
-const char* get_token_name(int token);
+// const char* get_token_name(int token);
 // void print_token(int token);
 void print_binop(enum BinOpType op);
 void print_unop(enum UnOpType op);
 void print_expr(struct expr * e);
 void print_cmd(struct cmd * c);
-
+void print_decl(struct decl * d);
+void print_expr_list(struct expr_list * l);
 unsigned int build_nat(char * c, int len);
 char * new_str(char * str, int len);
+
+struct decl * TDeclVar(char * name);
+struct decl * TDeclArray(char * name, struct expr * size);
+struct decl * TDeclSeq(struct decl * left, struct decl * right);
+struct decl * TDeclVarInit(char * name, struct expr * init);
+struct decl * TDeclArrayInit(char * name, struct expr * size, struct expr_list * init);
+struct expr_list * TExprList(struct expr * head, struct expr_list * tail);
 
 #endif // LANG_H_INCLUDED
