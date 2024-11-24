@@ -42,8 +42,7 @@ enum ExprType {
 };
 
 enum CmdType {
-  T_DECL = 0, 
-  T_DECL_ARRAY,
+  T_DECL = 0,
   T_ASGN, // assignment = 
   T_SEQ, // sequential execution ; 
   T_IF, // if
@@ -78,7 +77,6 @@ struct cmd {
   enum CmdType t;
   union {
     struct {char * name; } DECL;
-    struct {char * name; unsigned int size; } DECL_ARRAY;
     struct {struct expr * left; struct expr * right; } ASGN;
     struct {struct cmd * left; struct cmd * right; } SEQ;
     struct {struct expr * cond; struct cmd * left; struct cmd * right; } IF;
@@ -117,9 +115,10 @@ struct cmd * TWriteChar(struct expr * arg);
 
 //new commands
 struct cmd * TWriteString(struct expr * arg);
-struct cmd * TDeclArray(char * name, unsigned int size);
 
 // helper functions
+const char* get_token_name(int token);
+// void print_token(int token);
 void print_binop(enum BinOpType op);
 void print_unop(enum UnOpType op);
 void print_expr(struct expr * e);

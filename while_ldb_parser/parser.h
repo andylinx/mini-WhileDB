@@ -87,7 +87,7 @@ extern int yydebug;
     TM_MUL = 288,                  /* TM_MUL  */
     TM_DIV = 289,                  /* TM_DIV  */
     TM_MOD = 290,                  /* TM_MOD  */
-    
+
     TM_COMMA = 291, /* TM_COMMA , for initalizer list */
     TM_LSB = 292, /* TM_LSB left square bracket [ */
     TM_RSB = 293, /* TM_RSB right square bracket ] */

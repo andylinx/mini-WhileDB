@@ -44,13 +44,15 @@ char cl;
 %type <e> NT_EXPR
 
 // Priority
+%nonassoc TM_VAR
+%nonassoc TM_LSB TM_RSB
 %nonassoc TM_ASGNOP
 %left TM_OR
 %left TM_AND
 %left TM_LT TM_LE TM_GT TM_GE TM_EQ TM_NE
 %left TM_PLUS TM_MINUS
 %left TM_MUL TM_DIV TM_MOD
-%left TM_NOT
+%right TM_NOT
 %left TM_LEFT_PAREN TM_RIGHT_PAREN
 %right TM_SEMICOL
 
@@ -67,9 +69,13 @@ NT_WHOLE:
 
 // indicating the command
 NT_CMD:
-  TM_VAR TM_IDENT
+  TM_VAR TM_IDENT %prec TM_VAR
   {
-    $$ = (TDecl($2));
+    $$ = TDecl($2);
+  }
+| TM_VAR TM_IDENT TM_LSB TM_NAT TM_RSB
+  {
+    $$ = TDecl($2);
   }
 | NT_EXPR TM_ASGNOP NT_EXPR
   {
@@ -134,7 +140,7 @@ NT_EXPR_2:
   }
 | TM_MINUS NT_EXPR_2
   {
-    $$ = (TUnOp(T_UMINUS,$2));
+    $$ = TUnOp(T_UMINUS,$2);
   }
 | TM_MUL NT_EXPR_2
   {
@@ -143,11 +149,11 @@ NT_EXPR_2:
   // added rules for len and read string
 | TM_LEN TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
   {
-    $$ = (TLen($3));
+    $$ = TLen($3);
   }
 | TM_RS TM_LEFT_PAREN TM_RIGHT_PAREN
   {
-    $$ = (TReadString());
+    $$ = TReadString();
   }
 | NT_EXPR TM_LSB NT_EXPR TM_RSB
   {
