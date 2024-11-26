@@ -1,0 +1,12 @@
+  var n;
+  var i;
+  var s;
+  n = read_int();
+  i = 0;
+  s = 0;
+  while (i < n) do {
+    s = s + read_int();
+    i = i + 1
+  };
+  write_int(s);
+  write_char(10)

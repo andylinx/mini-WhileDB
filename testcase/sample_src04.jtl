@@ -1,0 +1,22 @@
+  var n;
+  var i;
+  var p;
+  var q;
+  var s;
+  n = read_int();
+  i = 0;
+  p = 0;
+  while (i < n) do {
+    q = malloc(16);
+    * q = read_int();
+    * (q + 8) = p;
+    p = q;
+    i = i + 1
+  };
+  s = 0;
+  while (p != 0) do {
+    s = s + * p;
+    p = * (p + 8)
+  };
+  write_int(s);
+  write_char(10)
