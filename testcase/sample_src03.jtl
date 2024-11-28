@@ -1,0 +1,10 @@
+  var n;
+  n = read_int();
+  if (n >= 0)
+  then {
+    write_int(n)
+  }
+  else {
+    write_int(- n)
+  };
+  write_char(10)
