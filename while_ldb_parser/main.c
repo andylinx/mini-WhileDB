@@ -2,6 +2,7 @@
 #include "lang.h"
 #include "lexer.h"
 #include "parser.h"
+#include "interpreter.h"
 
 extern int yydebug;
 extern struct cmd *root;
@@ -106,11 +107,10 @@ const char *get_token_name(int token)
 
 int main(int argc, char **argv)
 {
-    yyin = stdin;
+    yydebug = 0;
+    // yyin = stdin;
 
     // you can set yydebug to 1 to see the debug information from the parser
-    yydebug = 0;
-
     // you can uncomment this to see the result from the lexer
     // int token;
     // while (1)
@@ -125,10 +125,25 @@ int main(int argc, char **argv)
     //         break;
     // }
 
+    if (argc == 1)
+    {
+        printf("Error, not enough arguments!\n");
+        return 0;
+    }
+    if (argc >= 3)
+    {
+        printf("Error, too many arguments!\n");
+        return 0;
+    }
+    yyin = fopen(argv[1], "rb");
+    if (yyin == NULL)
+    {
+        printf("File %s can't be opened.\n", argv[1]);
+        return 0;
+    }
     yyparse();
-    // printf("parse success\n");
-    fclose(stdin);
     // print_cmd(root);
+    fclose(yyin);
     struct res_prog *r = init_res_prog(root);
     while (!test_end(r))
     {

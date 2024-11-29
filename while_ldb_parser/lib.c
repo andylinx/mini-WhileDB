@@ -4,10 +4,25 @@
 #include "lib.h"
 #include "lang.h"
 
+// two data type : var and array
+struct value_type
+{
+  int is_array;
+  union
+  {
+    long long single_value;
+    struct
+    {
+      long long *array;
+      int length;
+    } array_value;
+  } data;
+};
+
 struct SLL_hash_cell
 {
   char *key;
-  long long value;
+  struct value_type value;
   struct SLL_hash_cell *tail;
 };
 
@@ -39,7 +54,7 @@ struct SLL_hash_table *init_SLL_hash()
   return res;
 }
 
-long long SLL_hash_get(struct SLL_hash_table *t, char *key)
+long long SLL_hash_get_var(struct SLL_hash_table *t, char *key)
 {
   unsigned int s = hash_fun(key);
   struct SLL_hash_cell *p = t->h[s];
@@ -47,14 +62,14 @@ long long SLL_hash_get(struct SLL_hash_table *t, char *key)
   {
     if (strcmp(key, p->key) == 0)
     {
-      return p->value;
+      return p->value.data.single_value;
     }
     p = p->tail;
   }
   return NONE;
 }
 
-void SLL_hash_set(struct SLL_hash_table *t, char *key, long long value)
+void SLL_hash_set_var(struct SLL_hash_table *t, char *key, long long value)
 {
   unsigned int s = hash_fun(key);
   struct SLL_hash_cell **d = &(t->h[s]);
@@ -62,7 +77,9 @@ void SLL_hash_set(struct SLL_hash_table *t, char *key, long long value)
   {
     if (strcmp(key, (*d)->key) == 0)
     {
-      (*d)->value = value;
+      if ((*d)->value.is_array)
+        printf("Error: variable is an array.\n");
+      (*d)->value.data.single_value = value;
       return;
     }
     d = &((*d)->tail);
@@ -74,9 +91,90 @@ void SLL_hash_set(struct SLL_hash_table *t, char *key, long long value)
     exit(0);
   }
   (*d)->key = new_str(key, strlen(key));
-  (*d)->value = value;
+  (*d)->value.is_array = 0;
+  (*d)->value.data.single_value = value;
   (*d)->tail = NULL;
   return;
+}
+
+void SLL_hash_set_array(struct SLL_hash_table *t, char *key, int len, long long *arr)
+{
+  unsigned int s = hash_fun(key);
+  struct SLL_hash_cell **d = &(t->h[s]);
+  while ((*d) != NULL)
+  {
+    if (strcmp(key, (*d)->key) == 0)
+    {
+      if (!(*d)->value.is_array)
+        printf("Error: variable is not an array.\n");
+      free((*d)->value.data.array_value.array);
+      (*d)->value.is_array = 1;
+      (*d)->value.data.array_value.array = arr;
+      (*d)->value.data.array_value.length = len;
+      return;
+    }
+    d = &((*d)->tail);
+  }
+  *d = (struct SLL_hash_cell *)malloc(sizeof(struct SLL_hash_cell));
+  if (*d == NULL)
+  {
+    printf("Failure in malloc.\n");
+    exit(0);
+  }
+  (*d)->key = new_str(key, strlen(key));
+  (*d)->value.is_array = 1;
+  (*d)->value.data.array_value.array = arr;
+  (*d)->value.data.array_value.length = len;
+  (*d)->tail = NULL;
+  return;
+}
+
+long long *SLL_hash_get_array(struct SLL_hash_table *t, char *key)
+{
+  unsigned int s = hash_fun(key);
+  struct SLL_hash_cell *p = t->h[s];
+  while (p != NULL)
+  {
+    if (strcmp(key, p->key) == 0)
+    {
+      return p->value.data.array_value.array;
+    }
+    p = p->tail;
+  }
+  return NULL;
+}
+
+// return 1->array 0->var -1->not found
+int SLL_hash_var_type(struct SLL_hash_table *t, char *key)
+{
+  unsigned int s = hash_fun(key);
+  struct SLL_hash_cell *p = t->h[s];
+  while (p != NULL)
+  {
+    if (strcmp(key, p->key) == 0)
+    {
+      return p->value.is_array;
+    }
+    p = p->tail;
+  }
+  return -1;
+}
+
+long long SLL_hash_get_array_len(struct SLL_hash_table *t, char *key)
+{
+  unsigned int s = hash_fun(key);
+  struct SLL_hash_cell *p = t->h[s];
+  while (p != NULL)
+  {
+    if (strcmp(key, p->key) == 0)
+    {
+      if (!p->value.is_array)
+        return -1;
+      return p->value.data.array_value.length;
+    }
+    p = p->tail;
+  }
+  return -1;
 }
 
 void SLL_hash_delete(struct SLL_hash_table *t, char *key)
@@ -88,6 +186,11 @@ void SLL_hash_delete(struct SLL_hash_table *t, char *key)
     if (strcmp(key, (*d)->key) == 0)
     {
       struct SLL_hash_cell *p = *d;
+      if (p->value.is_array)
+      {
+        free(p->value.data.array_value.array);
+      }
+      free(p->key);
       *d = p->tail;
       free(p);
       return;

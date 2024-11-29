@@ -3,18 +3,6 @@
 #include "interpreter.h"
 #include "lib.h"
 
-struct cont_list
-{
-  struct cmd *c;
-  struct cont_list *link;
-};
-
-struct res_prog
-{
-  struct cmd *foc;
-  struct cont_list *ectx;
-};
-
 struct SLL_hash_table *var_state;
 
 struct res_prog *new_res_prog_ptr()
@@ -68,7 +56,23 @@ long long eval(struct expr *e)
   case T_CONST:
     return (long long)e->d.CONST.value;
   case T_VAR:
-    return SLL_hash_get(var_state, e->d.VAR.name);
+  {
+    // switch case by data type
+    int opt = SLL_hash_var_type(var_state, e->d.VAR.name);
+    if (opt == 0)
+      return SLL_hash_get_var(var_state, e->d.VAR.name);
+    else if (opt == 1)
+    {
+      // get array and return element by pos
+      long long *arr = SLL_hash_get_array(var_state, e->d.VAR.name);
+      return arr[0];
+    }
+    else if (opt == -1)
+    {
+      printf("Error: variable not found.\n");
+      exit(0);
+    }
+  }
   case T_BINOP:
     if (e->d.BINOP.op == T_AND)
     {
@@ -156,6 +160,16 @@ long long eval(struct expr *e)
     scanf("%c", &res);
     return (long long)res;
   }
+  case T_LEN:
+  {
+    long long len = SLL_hash_get_array_len(var_state, e->d.LEN.arg->d.VAR.name);
+    if (len == -1)
+    {
+      printf("invalid array\n");
+      exit(0);
+    }
+    return len;
+  }
   }
 }
 
@@ -174,6 +188,43 @@ void step(struct res_prog *r)
     switch (c->t)
     {
     case T_DECL:
+      // modified to apply initialize with value
+      switch (c->d.DECL.declaration->t)
+      {
+      case T_DECLVAR:
+      {
+        SLL_hash_set_var(var_state, c->d.DECL.declaration->d.DECLVAR.name, 0); // undeclared initialize with 0
+        break;
+      }
+      case T_DECLARRAY:
+      {
+        long long size = eval(c->d.DECL.declaration->d.DECLARRAY.size);
+        long long *arr = (long long *)malloc(size * sizeof(long long));
+        for (long long i = 0; i < size; i++)
+          arr[i] = 0;
+        SLL_hash_set_array(var_state, c->d.DECL.declaration->d.DECLARRAY.name, size, arr);
+        break;
+      }
+      case T_DECLVARINIT:
+      {
+        long long init = eval(c->d.DECL.declaration->d.DECLVARINIT.init);
+        SLL_hash_set_var(var_state, c->d.DECL.declaration->d.DECLVARINIT.name, init);
+        break;
+      }
+      case T_DECLARARRAYINIT:
+      {
+        long long size = eval(c->d.DECL.declaration->d.DECLARARRAYINIT.size);
+        long long *arr = (long long *)malloc(size * sizeof(long long));
+        struct expr_list *init = c->d.DECL.declaration->d.DECLARARRAYINIT.init;
+        for (long long i = 0; i < size; i++)
+        {
+          arr[i] = eval(init->head);
+          init = init->tail;
+        }
+        SLL_hash_set_array(var_state, c->d.DECL.declaration->d.DECLARARRAYINIT.name, size, arr);
+        break;
+      }
+      }
       r->foc = NULL;
       break;
     case T_ASGN:
@@ -182,7 +233,7 @@ void step(struct res_prog *r)
       case T_VAR:
       {
         long long rhs = eval(c->d.ASGN.right);
-        SLL_hash_set(var_state, c->d.ASGN.left->d.VAR.name, rhs);
+        SLL_hash_set_var(var_state, c->d.ASGN.left->d.VAR.name, rhs);
         break;
       }
       case T_DEREF:
