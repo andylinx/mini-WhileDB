@@ -11,7 +11,7 @@ struct res_prog *new_res_prog_ptr()
   if (res == NULL)
   {
     printf("Failure in malloc.\n");
-    exit(0);
+    exit(1);
   }
   return res;
 }
@@ -22,7 +22,7 @@ struct cont_list *new_cont_list_ptr()
   if (res == NULL)
   {
     printf("Failure in malloc.\n");
-    exit(0);
+    exit(1);
   }
   return res;
 }
@@ -70,7 +70,7 @@ long long eval(struct expr *e)
     else if (opt == -1)
     {
       printf("Error: variable not found.\n");
-      exit(0);
+      exit(1);
     }
   }
   case T_BINOP:
@@ -166,11 +166,21 @@ long long eval(struct expr *e)
     if (len == -1)
     {
       printf("invalid array\n");
-      exit(0);
+      exit(1);
     }
     return len;
   }
+  case T_SA:
+  {
+    long long *arr = SLL_hash_get_array(var_state, e->d.SA.array_arg->d.VAR.name);
+    long long index = eval(e->d.SA.index_arg);
+    if (index < 0)  { // modified to check array bounds
+      printf("Error: Array index is negative!\n");
+      exit(1);
+    }
+    return arr[index];
   }
+}
 }
 
 void step(struct res_prog *r)
@@ -193,7 +203,8 @@ void step(struct res_prog *r)
       {
       case T_DECLVAR:
       {
-        SLL_hash_set_var(var_state, c->d.DECL.declaration->d.DECLVAR.name, 0); // undeclared initialize with 0
+        //printf("DECLVAR(%s)\n", c->d.DECL.declaration->d.DECLVAR.name);
+        SLL_hash_set_var(var_state, c->d.DECL.declaration->d.DECLVAR.name, 0, 1); // undeclared initialize with 0
         break;
       }
       case T_DECLARRAY:
@@ -208,7 +219,7 @@ void step(struct res_prog *r)
       case T_DECLVARINIT:
       {
         long long init = eval(c->d.DECL.declaration->d.DECLVARINIT.init);
-        SLL_hash_set_var(var_state, c->d.DECL.declaration->d.DECLVARINIT.name, init);
+        SLL_hash_set_var(var_state, c->d.DECL.declaration->d.DECLVARINIT.name, init, 1);
         break;
       }
       case T_DECLARARRAYINIT:
@@ -224,6 +235,19 @@ void step(struct res_prog *r)
         SLL_hash_set_array(var_state, c->d.DECL.declaration->d.DECLARARRAYINIT.name, size, arr);
         break;
       }
+      
+      case T_DECLSEQ:
+      {
+        //printf("DECLSEQ\n");
+        struct decl *left = c->d.DECL.declaration->d.DECLSEQ.left;
+        struct decl *right = c->d.DECL.declaration->d.DECLSEQ.right;
+        struct cmd *new_cmd = TDecl(left);
+        r->foc = new_cmd;
+        r->ectx = CL_Cons(TDecl(right), r->ectx);
+        step(r);
+        break;
+      }
+      
       }
       r->foc = NULL;
       break;
@@ -233,7 +257,7 @@ void step(struct res_prog *r)
       case T_VAR:
       {
         long long rhs = eval(c->d.ASGN.right);
-        SLL_hash_set_var(var_state, c->d.ASGN.left->d.VAR.name, rhs);
+        SLL_hash_set_var(var_state, c->d.ASGN.left->d.VAR.name, rhs, 0);
         break;
       }
       case T_DEREF:
@@ -243,9 +267,17 @@ void step(struct res_prog *r)
         *lhs = rhs;
         break;
       }
+      case T_SA:
+      {
+        long long *arr = SLL_hash_get_array(var_state, c->d.ASGN.left->d.SA.array_arg->d.VAR.name);
+        long long index = eval(c->d.ASGN.left->d.SA.index_arg);
+        long long rhs = eval(c->d.ASGN.right);
+        arr[index] = rhs;
+        break;
+      }
       default:
         printf("error!\n");
-        exit(0);
+        exit(1);
       }
       r->foc = NULL;
       break;
@@ -291,6 +323,7 @@ void step(struct res_prog *r)
     }
   }
 }
+
 
 int test_end(struct res_prog *r)
 {

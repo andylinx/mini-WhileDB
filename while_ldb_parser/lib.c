@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "lib.h"
 #include "lang.h"
 
@@ -69,7 +70,7 @@ long long SLL_hash_get_var(struct SLL_hash_table *t, char *key)
   return NONE;
 }
 
-void SLL_hash_set_var(struct SLL_hash_table *t, char *key, long long value)
+void SLL_hash_set_var(struct SLL_hash_table *t, char *key, long long value, bool is_define)
 {
   unsigned int s = hash_fun(key);
   struct SLL_hash_cell **d = &(t->h[s]);
@@ -83,6 +84,11 @@ void SLL_hash_set_var(struct SLL_hash_table *t, char *key, long long value)
       return;
     }
     d = &((*d)->tail);
+  }
+  if(!is_define){
+    // show the undefined variable
+    printf("Error: variable %s is not defined.\n", key);
+    exit(1);
   }
   *d = (struct SLL_hash_cell *)malloc(sizeof(struct SLL_hash_cell));
   if (*d == NULL)
@@ -105,8 +111,10 @@ void SLL_hash_set_array(struct SLL_hash_table *t, char *key, int len, long long 
   {
     if (strcmp(key, (*d)->key) == 0)
     {
-      if (!(*d)->value.is_array)
-        printf("Error: variable is not an array.\n");
+      if (!(*d)->value.is_array) {
+        printf("Error: variable is not an array!\n");
+        exit(1);
+      }
       free((*d)->value.data.array_value.array);
       (*d)->value.is_array = 1;
       (*d)->value.data.array_value.array = arr;

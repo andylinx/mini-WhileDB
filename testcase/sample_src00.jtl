@@ -1,5 +1,5 @@
   var n;
   var m;
-  n = read_int();
-  m = n + 1;
-  write_int(m + 2)
+  var a[10];
+  a[1] = 1;
+  write_int(2)
