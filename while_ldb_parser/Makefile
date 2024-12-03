@@ -5,7 +5,7 @@ lexer.c: lang.l
 	flex lang.l
 
 parser.c: lang.y
-	bison -o parser.c -d -v -Wcounterexample lang.y
+	bison -o parser.c -d -v -t -d --debug -Wcounterexample lang.y
 
 parser.h: lang.y
 	bison -o parser.c -d -v lang.y

@@ -130,6 +130,7 @@ struct expr_list {
 
 // expression constructors
 struct expr * TConst(unsigned int value);
+
 struct expr * TVar(char * name);
 struct expr * TBinOp(enum BinOpType op, struct expr * left, struct expr * right);
 struct expr * TUnOp(enum UnOpType op, struct expr * arg);
@@ -142,6 +143,8 @@ struct expr * TReadChar();
 struct expr * TLen(struct expr * arg);
 struct expr * TReadString();
 struct expr * TSubscriptAccess(struct expr * array_arg, struct expr * index_arg);
+struct expr * TConstChar(char c);
+struct expr_list * TStringToExprList(char * str);
 
 // command constructors
 struct cmd * TDecl(struct decl * declaration);
