@@ -112,6 +112,14 @@ NT_DECL:
   {
     $$ = TDeclSeq(TDeclArrayInit($1, $3, $7), $10);
   }
+| TM_IDENT TM_LSB NT_EXPR TM_RSB TM_ASGNOP TM_SL
+  {
+    $$ = TDeclArrayInit($1, $3, TStringToExprList($6));
+  }
+| TM_IDENT TM_LSB NT_EXPR TM_RSB TM_ASGNOP TM_SL TM_COMMA NT_DECL
+  {
+    $$ = TDeclSeq(TDeclArrayInit($1, $3, TStringToExprList($6)), $8);
+  }
 ;
 
 // Add new non-terminal for expression lists (array initialization)
@@ -161,10 +169,6 @@ NT_CMD:
   {
     $$ = (TWriteString($3));
   }
-| TM_MUL NT_EXPR TM_ASGNOP NT_EXPR
-  {
-    $$ = TAsgnDeref($2, $4);
-  }
 ;
 
 // indicating the basic expression
@@ -172,6 +176,10 @@ NT_EXPR_2:
   TM_NAT
   {
     $$ = (TConst($1));
+  }
+| TM_CL
+  {
+    $$ = (TConstChar($1));
   }
 | TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
   {

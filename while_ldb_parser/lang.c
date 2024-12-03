@@ -31,11 +31,27 @@ struct expr * TConst(unsigned int value) {
   return res;
 }
 
+// new expression
+struct expr * TConstChar(char c) {
+  // printf("TConstChar: %c\n", c);
+  struct expr * e = new_expr_ptr();
+  e -> t = T_CONST;
+  e -> d.CONST.value = (int)c;
+  return e;
+}
+
 struct expr * TVar(char * name) {
   struct expr * res = new_expr_ptr();
   res -> t = T_VAR;
   res -> d.VAR.name = name;
   return res;
+}
+struct expr_list * TStringToExprList(char * str) {
+    if (str == NULL || *str == '\0') {
+        return NULL;
+    }
+    struct expr * e = TConstChar(*str);
+    return TExprList(e, TStringToExprList(str + 1));
 }
 
 struct expr * TBinOp(enum BinOpType op, struct expr * left, struct expr * right) {
