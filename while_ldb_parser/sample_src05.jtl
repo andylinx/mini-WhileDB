@@ -1,1 +1,3 @@
-var a = 1
+var a =1 ,s[10]={0,1,2,3};
+write_int(a);
+write_int(s[1])

@@ -174,13 +174,14 @@ long long eval(struct expr *e)
   {
     long long *arr = SLL_hash_get_array(var_state, e->d.SA.array_arg->d.VAR.name);
     long long index = eval(e->d.SA.index_arg);
-    if (index < 0)  { // modified to check array bounds
+    if (index < 0)
+    { // modified to check array bounds
       printf("Error: Array index is negative!\n");
       exit(1);
     }
     return arr[index];
   }
-}
+  }
 }
 
 void step(struct res_prog *r)
@@ -203,7 +204,7 @@ void step(struct res_prog *r)
       {
       case T_DECLVAR:
       {
-        //printf("DECLVAR(%s)\n", c->d.DECL.declaration->d.DECLVAR.name);
+        // printf("DECLVAR(%s)\n", c->d.DECL.declaration->d.DECLVAR.name);
         SLL_hash_set_var(var_state, c->d.DECL.declaration->d.DECLVAR.name, 0, 1); // undeclared initialize with 0
         break;
       }
@@ -229,16 +230,21 @@ void step(struct res_prog *r)
         struct expr_list *init = c->d.DECL.declaration->d.DECLARARRAYINIT.init;
         for (long long i = 0; i < size; i++)
         {
-          arr[i] = eval(init->head);
-          init = init->tail;
+          if (init != NULL)
+          {
+            arr[i] = eval(init->head);
+            init = init->tail;
+          }
+          else
+            arr[i] = 0;
         }
         SLL_hash_set_array(var_state, c->d.DECL.declaration->d.DECLARARRAYINIT.name, size, arr);
         break;
       }
-      
+
       case T_DECLSEQ:
       {
-        //printf("DECLSEQ\n");
+        // printf("DECLSEQ\n");
         struct decl *left = c->d.DECL.declaration->d.DECLSEQ.left;
         struct decl *right = c->d.DECL.declaration->d.DECLSEQ.right;
         struct cmd *new_cmd = TDecl(left);
@@ -247,7 +253,6 @@ void step(struct res_prog *r)
         step(r);
         break;
       }
-      
       }
       r->foc = NULL;
       break;
@@ -309,21 +314,20 @@ void step(struct res_prog *r)
     case T_WI:
     {
       long long rhs = eval(c->d.WI.arg);
-      printf("%lld", rhs);
+      printf("%lld\n", rhs);
       r->foc = NULL;
       break;
     }
     case T_WC:
     {
       char rhs = (char)eval(c->d.WC.arg);
-      printf("%c", rhs);
+      printf("%c\n", rhs);
       r->foc = NULL;
       break;
     }
     }
   }
 }
-
 
 int test_end(struct res_prog *r)
 {
