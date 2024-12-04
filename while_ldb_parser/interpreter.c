@@ -49,23 +49,41 @@ struct res_prog *init_res_prog(struct cmd *c)
   return res;
 }
 
-long long eval(struct expr *e)
+struct value_type eval(struct expr *e)
 {
+  struct value_type result, tmp;
   switch (e->t)
   {
   case T_CONST:
-    return (long long)e->d.CONST.value;
+  {
+    result.is_array = 0;
+    result.data.single_value = (long long)e->d.CONST.value;
+    return result;
+  }
   case T_VAR:
   {
     // switch case by data type
     int opt = SLL_hash_var_type(var_state, e->d.VAR.name);
     if (opt == 0)
-      return SLL_hash_get_var(var_state, e->d.VAR.name);
+    {
+      result.is_array = 0;
+      result.data.single_value = SLL_hash_get_var(var_state, e->d.VAR.name);
+      return result;
+    }
     else if (opt == 1)
     {
       // get array and return element by pos
       long long *arr = SLL_hash_get_array(var_state, e->d.VAR.name);
-      return arr[0];
+      int len = SLL_hash_get_array_len(var_state, e->d.VAR.name);
+      if (len == -1)
+      {
+        printf("invalid array\n");
+        exit(1);
+      }
+      result.is_array = 1;
+      result.data.array_value.length = len;
+      result.data.array_value.array = arr;
+      return result;
     }
     else if (opt == -1)
     {
@@ -76,89 +94,305 @@ long long eval(struct expr *e)
   case T_BINOP:
     if (e->d.BINOP.op == T_AND)
     {
-      if (eval(e->d.BINOP.left))
+      result = eval(e->d.BINOP.left);
+      if (result.is_array == 0)
       {
-        return eval(e->d.BINOP.right);
+        if (result.data.single_value)
+        {
+          result = eval(e->d.BINOP.right);
+          if (result.is_array == 0)
+            return result;
+          else
+          {
+            // such as "t&&s" where t is an array
+            printf("invalid right expression!");
+            exit(1);
+          }
+        }
+        else
+        {
+          result.data.single_value = 0;
+          return result;
+        }
       }
       else
       {
-        return 0;
+        // such as "t&&s" where t is an array
+        printf("invalid left expression!");
+        exit(1);
       }
+      return result;
     }
     else if (e->d.BINOP.op == T_OR)
     {
-      if (eval(e->d.BINOP.left))
+      result = eval(e->d.BINOP.left);
+      if (result.is_array == 0)
       {
-        return 1;
+        if (result.data.single_value)
+          return result;
+        else
+        {
+          result = eval(e->d.BINOP.right);
+          if (result.is_array == 0)
+            return result;
+          else
+          {
+            // such as "t&&s" where t is an array
+            printf("invalid right expression!");
+            exit(1);
+          }
+        }
       }
       else
       {
-        return eval(e->d.BINOP.right);
+        // such as "t&&s" where t is an array
+        printf("invalid left expression!");
+        exit(1);
       }
+      return result;
     }
     else
     {
-      long long left_val = eval(e->d.BINOP.left);
-      long long right_val = eval(e->d.BINOP.right);
+      struct value_type lef_val, rig_val;
+      lef_val = eval(e->d.BINOP.left);
+      rig_val = eval(e->d.BINOP.right);
       switch (e->d.BINOP.op)
       {
       case T_PLUS:
-        return left_val + right_val;
+      {
+        if (lef_val.is_array == 1 && rig_val.is_array == 0)
+        {
+          result.is_array = 1;
+          result.data.array_value.array = lef_val.data.array_value.array + rig_val.data.single_value;
+          result.data.array_value.length = lef_val.data.array_value.length;
+        }
+        else if (lef_val.is_array == 0 && rig_val.is_array == 1)
+        {
+          result.is_array = 1;
+          result.data.array_value.array = rig_val.data.array_value.array + lef_val.data.single_value;
+          result.data.array_value.length = rig_val.data.array_value.length;
+        }
+        else if (lef_val.is_array == 1 && rig_val.is_array == 1)
+        {
+          printf("invalid plus!");
+          exit(1);
+        }
+        else
+        {
+          result.is_array = 0;
+          result.data.single_value = lef_val.data.single_value + rig_val.data.single_value;
+        }
+        return result;
+      }
       case T_MINUS:
-        return left_val - right_val;
+      {
+        if (lef_val.is_array == 1 && rig_val.is_array == 0)
+        {
+          result.is_array = 1;
+          result.data.array_value.array = lef_val.data.array_value.array - rig_val.data.single_value;
+          result.data.array_value.length = lef_val.data.array_value.length;
+        }
+        else if (lef_val.is_array == 0 && rig_val.is_array == 0)
+        {
+          result.is_array = 0;
+          result.data.single_value = lef_val.data.single_value - rig_val.data.single_value;
+        }
+        else
+        {
+          printf("invalid minus!");
+          exit(1);
+        }
+        return result;
+      }
       case T_MUL:
-        return left_val * right_val;
+      {
+        if (lef_val.is_array == 0 && rig_val.is_array == 0)
+        {
+          result.is_array = 0;
+          result.data.single_value = lef_val.data.single_value * rig_val.data.single_value;
+        }
+        else
+        {
+          printf("invalid multiply!");
+          exit(1);
+        }
+        return result;
+      }
       case T_DIV:
-        return left_val / right_val;
+      {
+        if (lef_val.is_array == 0 && rig_val.is_array == 0)
+        {
+          result.is_array = 0;
+          result.data.single_value = lef_val.data.single_value / rig_val.data.single_value;
+        }
+        else
+        {
+          printf("invalid divide!");
+          exit(1);
+        }
+        return result;
+      }
       case T_MOD:
-        return left_val % right_val;
+      {
+        if (lef_val.is_array == 0 && rig_val.is_array == 0)
+        {
+          result.is_array = 0;
+          result.data.single_value = lef_val.data.single_value % rig_val.data.single_value;
+        }
+        else
+        {
+          printf("invalid mod!");
+          exit(1);
+        }
+        return result;
+      }
       case T_LT:
-        return left_val < right_val;
+      {
+        if (lef_val.is_array == 0 && rig_val.is_array == 0)
+        {
+          result.is_array = 0;
+          result.data.single_value = lef_val.data.single_value < rig_val.data.single_value;
+        }
+        else
+        {
+          printf("invalid less than!");
+          exit(1);
+        }
+        return result;
+      }
       case T_GT:
-        return left_val > right_val;
+      {
+        if (lef_val.is_array == 0 && rig_val.is_array == 0)
+        {
+          result.is_array = 0;
+          result.data.single_value = lef_val.data.single_value > rig_val.data.single_value;
+        }
+        else
+        {
+          printf("invalid greater than!");
+          exit(1);
+        }
+        return result;
+      }
       case T_LE:
-        return left_val <= right_val;
+      {
+        if (lef_val.is_array == 0 && rig_val.is_array == 0)
+        {
+          result.is_array = 0;
+          result.data.single_value = lef_val.data.single_value <= rig_val.data.single_value;
+        }
+        else
+        {
+          printf("invalid less equal!");
+          exit(1);
+        }
+        return result;
+      }
       case T_GE:
-        return left_val >= right_val;
+      {
+        if (lef_val.is_array == 0 && rig_val.is_array == 0)
+        {
+          result.is_array = 0;
+          result.data.single_value = lef_val.data.single_value >= rig_val.data.single_value;
+        }
+        else
+        {
+          printf("invalid greater equal!");
+          exit(1);
+        }
+        return result;
+      }
       case T_EQ:
-        return left_val == right_val;
+      {
+        if (lef_val.is_array == 0 && rig_val.is_array == 0)
+        {
+          result.is_array = 0;
+          result.data.single_value = lef_val.data.single_value == rig_val.data.single_value;
+        }
+        else
+        {
+          printf("invalid equal!");
+          exit(1);
+        }
+        return result;
+      }
       case T_NE:
-        return left_val != right_val;
+      {
+        if (lef_val.is_array == 0 && rig_val.is_array == 0)
+        {
+          result.is_array = 0;
+          result.data.single_value = lef_val.data.single_value != rig_val.data.single_value;
+        }
+        else
+        {
+          printf("invalid unequal!");
+          exit(1);
+        }
+        return result;
+      }
       default:
-        return 0; // impossible case
+      {
+        printf("invalid operation!");
+        exit(1);
+      }; // impossible case
       }
     }
   case T_UNOP:
+  {
+    result = eval(e->d.UNOP.arg);
+    if (result.is_array)
+    {
+      printf("invalid unop!");
+      exit(1);
+    }
     if (e->d.UNOP.op == T_NOT)
-    {
-      return !eval(e->d.UNOP.arg);
-    }
+      result.data.single_value = !result.data.single_value;
     else
-    {
-      return -eval(e->d.UNOP.arg);
-    }
+      result.data.single_value = -result.data.single_value;
+    return result;
+  }
   case T_DEREF:
-    return *(long long *)eval(e->d.DEREF.arg);
+  {
+    tmp = eval(e->d.DEREF.arg);
+    result.is_array = 0;
+    if (tmp.is_array)
+      result.data.single_value = *tmp.data.array_value.array;
+    else
+      result.data.single_value = *(long long *)tmp.data.single_value;
+    return result;
+  }
   case T_MALLOC:
   {
-    long long arg_val = eval(e->d.MALLOC.arg);
+    tmp = eval(e->d.MALLOC.arg);
+    if (tmp.is_array)
+    {
+      printf("invalid malloc");
+      exit(1);
+    }
+    long long arg_val = tmp.data.single_value;
     if (arg_val % 8 != 0)
     {
       arg_val = (arg_val | 7) + 1;
     }
-    return (long long)malloc(arg_val);
+    result.is_array = 0;
+    result.data.single_value = (long long)malloc(arg_val);
+    return result;
   }
   case T_RI:
   {
     long long res;
     scanf("%lld", &res);
-    return res;
+    result.is_array = 0;
+    result.data.single_value = res;
+    return result;
   }
   case T_RC:
   {
     char res;
     scanf("%c", &res);
-    return (long long)res;
+    result.is_array = 0;
+    result.data.single_value = (long long)res;
+    return result;
   }
   case T_LEN:
   {
@@ -168,13 +402,21 @@ long long eval(struct expr *e)
       printf("invalid array\n");
       exit(1);
     }
-    return len;
+    result.is_array = 0;
+    result.data.single_value = len;
+    return result;
   }
   case T_SA:
   {
     long long *arr = SLL_hash_get_array(var_state, e->d.SA.array_arg->d.VAR.name);
-    long long index = eval(e->d.SA.index_arg);
-    if(arr == NULL)
+    tmp = eval(e->d.SA.index_arg);
+    if (tmp.is_array)
+    {
+      printf("arr lenth is not valid const");
+      exit(1);
+    }
+    long long index = tmp.data.single_value;
+    if (arr == NULL)
     {
       printf("Error: array not found.\n");
       exit(1);
@@ -184,13 +426,16 @@ long long eval(struct expr *e)
       printf("Error: Array index is negative!\n");
       exit(1);
     }
-    return arr[index];
+    result.is_array = 0;
+    result.data.single_value = arr[index];
+    return result;
   }
   }
 }
 
 void step(struct res_prog *r)
 {
+  struct value_type tmp;
   if (r->foc == NULL)
   {
     struct cont_list *cl = r->ectx;
@@ -215,7 +460,13 @@ void step(struct res_prog *r)
       }
       case T_DECLARRAY:
       {
-        long long size = eval(c->d.DECL.declaration->d.DECLARRAY.size);
+        tmp = eval(c->d.DECL.declaration->d.DECLARRAY.size);
+        if (tmp.is_array)
+        {
+          printf("invalid array length");
+          exit(1);
+        }
+        long long size = tmp.data.single_value;
         long long *arr = (long long *)malloc(size * sizeof(long long));
         for (long long i = 0; i < size; i++)
           arr[i] = 0;
@@ -224,14 +475,26 @@ void step(struct res_prog *r)
       }
       case T_DECLVARINIT:
       {
-        long long init = eval(c->d.DECL.declaration->d.DECLVARINIT.init);
+        tmp = eval(c->d.DECL.declaration->d.DECLVARINIT.init);
+        if (tmp.is_array)
+        {
+          printf("invalid var value");
+          exit(1);
+        }
+        long long init = tmp.data.single_value;
         SLL_hash_set_var(var_state, c->d.DECL.declaration->d.DECLVARINIT.name, init, 1);
         break;
       }
       case T_DECLARARRAYINIT:
       {
-        long long size = eval(c->d.DECL.declaration->d.DECLARARRAYINIT.size);
-        if(size <= 0)
+        tmp = eval(c->d.DECL.declaration->d.DECLARARRAYINIT.size);
+        if (tmp.is_array)
+        {
+          printf("invalid array length");
+          exit(1);
+        }
+        long long size = tmp.data.single_value;
+        if (size <= 0)
         {
           printf("Error: array size is negative\n");
           exit(1);
@@ -251,14 +514,19 @@ void step(struct res_prog *r)
                 exit(1);
               }
             }
-
-            arr[i] = eval(init->head);
+            tmp = eval(init->head);
+            if (tmp.is_array)
+            {
+              printf("invalid initialize value");
+              exit(1);
+            }
+            arr[i] = tmp.data.single_value;
             init = init->tail;
           }
           else
             arr[i] = 0;
         }
-        if(init != NULL)
+        if (init != NULL)
         {
           printf("Error: too many initializers\n");
           exit(1);
@@ -266,7 +534,6 @@ void step(struct res_prog *r)
         SLL_hash_set_array(var_state, c->d.DECL.declaration->d.DECLARARRAYINIT.name, size, arr);
         break;
       }
-
       case T_DECLSEQ:
       {
         // printf("DECLSEQ\n");
@@ -286,27 +553,57 @@ void step(struct res_prog *r)
       {
       case T_VAR:
       {
-        long long rhs = eval(c->d.ASGN.right);
+        tmp = eval(c->d.ASGN.right);
+        if (tmp.is_array)
+        {
+          printf("invalid var");
+          exit(1);
+        }
+        long long rhs = tmp.data.single_value;
         SLL_hash_set_var(var_state, c->d.ASGN.left->d.VAR.name, rhs, 0);
         break;
       }
       case T_DEREF:
       {
-        long long *lhs = (long long *)eval(c->d.ASGN.left->d.DEREF.arg);
-        long long rhs = eval(c->d.ASGN.right);
+        long long *lhs;
+        long long rhs;
+        tmp = eval(c->d.ASGN.left->d.DEREF.arg);
+        if (tmp.is_array)
+          lhs = tmp.data.array_value.array;
+        else
+          lhs = (long long *)tmp.data.single_value;
+        tmp = eval(c->d.ASGN.right);
+        if (tmp.is_array)
+        {
+          printf("invalid assign right value");
+          exit(1);
+        }
+        rhs = tmp.data.single_value;
         *lhs = rhs;
         break;
       }
       case T_SA:
       {
         long long *arr = SLL_hash_get_array(var_state, c->d.ASGN.left->d.SA.array_arg->d.VAR.name);
-        long long index = eval(c->d.ASGN.left->d.SA.index_arg);
-        long long rhs = eval(c->d.ASGN.right);
+        tmp = eval(c->d.ASGN.left->d.SA.index_arg);
+        if (tmp.is_array)
+        {
+          printf("invalid array index");
+          exit(1);
+        }
+        long long index = tmp.data.single_value;
+        tmp = eval(c->d.ASGN.right);
+        if (tmp.is_array)
+        {
+          printf("invalid right value");
+          exit(1);
+        }
+        long long rhs = tmp.data.single_value;
         arr[index] = rhs;
         break;
       }
       default:
-        printf("error!\n");
+        printf("invalid assign left value!\n");
         exit(1);
       }
       r->foc = NULL;
@@ -316,7 +613,14 @@ void step(struct res_prog *r)
       r->ectx = CL_Cons(c->d.SEQ.right, r->ectx);
       break;
     case T_IF:
-      if (eval(c->d.IF.cond))
+    {
+      tmp = eval(c->d.IF.cond);
+      if (tmp.is_array)
+      {
+        printf("invalid cond!");
+        exit(1);
+      }
+      if (tmp.data.single_value)
       {
         r->foc = c->d.IF.left;
       }
@@ -325,8 +629,16 @@ void step(struct res_prog *r)
         r->foc = c->d.IF.right;
       }
       break;
+    }
     case T_WHILE:
-      if (eval(c->d.WHILE.cond))
+    {
+      tmp = eval(c->d.WHILE.cond);
+      if (tmp.is_array)
+      {
+        printf("invalid cond!");
+        exit(1);
+      }
+      if (tmp.data.single_value)
       {
         r->foc = c->d.WHILE.body;
         r->ectx = CL_Cons(c, r->ectx);
@@ -336,16 +648,29 @@ void step(struct res_prog *r)
         r->foc = NULL;
       }
       break;
+    }
     case T_WI:
     {
-      long long rhs = eval(c->d.WI.arg);
+      tmp = eval(c->d.WI.arg);
+      if (tmp.is_array)
+      {
+        printf("invalid output value");
+        exit(1);
+      }
+      long long rhs = tmp.data.single_value;
       printf("%lld\n", rhs);
       r->foc = NULL;
       break;
     }
     case T_WC:
     {
-      char rhs = (char)eval(c->d.WC.arg);
+      tmp = eval(c->d.WC.arg);
+      if (tmp.is_array)
+      {
+        printf("invalid output value");
+        exit(1);
+      }
+      char rhs = (char)tmp.data.single_value;
       printf("%c\n", rhs);
       r->foc = NULL;
       break;
@@ -362,8 +687,8 @@ void step(struct res_prog *r)
       r->foc = NULL;
       break;
     }
+    }
   }
-}
 }
 
 int test_end(struct res_prog *r)

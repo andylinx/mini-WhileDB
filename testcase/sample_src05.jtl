@@ -1,2 +1,2 @@
-var t[5] = {"ghgyu"};
+var t[5] = "ghgyu";
 write_int(t[0])

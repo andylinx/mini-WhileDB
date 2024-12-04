@@ -5,21 +5,6 @@
 #include "lib.h"
 #include "lang.h"
 
-// two data type : var and array
-struct value_type
-{
-  int is_array;
-  union
-  {
-    long long single_value;
-    struct
-    {
-      long long *array;
-      int length;
-    } array_value;
-  } data;
-};
-
 struct SLL_hash_cell
 {
   char *key;
@@ -78,7 +63,8 @@ void SLL_hash_set_var(struct SLL_hash_table *t, char *key, long long value, bool
   {
     if (strcmp(key, (*d)->key) == 0)
     {
-      if ((*d)->value.is_array) {
+      if ((*d)->value.is_array)
+      {
         printf("Error: variable is an array!\n");
         exit(1);
       }
@@ -87,7 +73,8 @@ void SLL_hash_set_var(struct SLL_hash_table *t, char *key, long long value, bool
     }
     d = &((*d)->tail);
   }
-  if(!is_define){
+  if (!is_define)
+  {
     // show the undefined variable
     printf("Error: variable %s is not defined.\n", key);
     exit(1);
@@ -113,7 +100,8 @@ void SLL_hash_set_array(struct SLL_hash_table *t, char *key, int len, long long 
   {
     if (strcmp(key, (*d)->key) == 0)
     {
-      if (!(*d)->value.is_array) {
+      if (!(*d)->value.is_array)
+      {
         printf("Error: variable is not an array!\n");
         exit(1);
       }

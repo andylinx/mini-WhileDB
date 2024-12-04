@@ -3,7 +3,20 @@
 
 #define NONE 4294967295
 #include <stdbool.h>
-struct value_type;
+// two data type : var and array
+struct value_type
+{
+    int is_array;
+    union
+    {
+        long long single_value;
+        struct
+        {
+            long long *array;
+            int length;
+        } array_value;
+    } data;
+};
 struct SLL_hash_table;
 struct SLL_hash_table *init_SLL_hash();
 long long SLL_hash_get_var(struct SLL_hash_table *t, char *key);

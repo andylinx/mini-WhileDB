@@ -130,24 +130,36 @@ new command types:
 
 # Interpreter:
 
+## edition:
+
+12.5 zzc
+
+- In our grammer framework, there exist two type of pointers (created by malloc, array name), their arithmetic operation rule is different. For convenience, I change the type of `eval` func, whose return value at present is the type of `value_type`
+
+- add several type checking via new type of return value
+
+**! ! !** feel free to ask, if there exist anything unproper or incorrect.
+
 ## currently implemented func
 
 - initialize with value (var, array)
 - get the len of array
 - support for multiple declarations
 - support for array subscript access (Error when subscript is negative, but not when subscript is out of bound, just like the feature in C language)
-- support for array assignment statements (i.e. ```a[i] = j```)
-- ```write_string()```
+- support for array assignment statements (i.e. `a[i] = j`)
+- `write_string()`
+- support pointer arithmetic operation including array name as pointer
+- support two types of dereference
 
 ## details about array initialization
-- the length of the array is not required to be a CONST (e.g. an integer ```A``` is also accepted)
-- the logical sequence of the array initialization: 
-  
+
+- the length of the array is not required to be a CONST (e.g. an integer `A` is also accepted)
+- the logical sequence of the array initialization:
+
   - check if the initialization length is legal
   - check if the initializers are legal
   - array assignment
   - check if there are too many initializers
- 
 
 ## file description
 
@@ -157,6 +169,7 @@ the `var_state` is stored in a hash-table, where each var is in the form of `(ke
 struct value_type
 {
   int is_array;
+  int is_pointer;
   union
   {
     long long single_value;

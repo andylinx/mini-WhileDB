@@ -4,8 +4,3 @@
   m = n + 1;
   write_int(m + 2)
 
-  var n;
-  var m;
-  var a[10];
-  a[1] = 1;
-  write_int(2)
