@@ -3,10 +3,12 @@
 In addition to basic whileDB language features, we support the following features:
 
 <!-- - Strongly typed features: -->
+
 - Uniformly typed features:
   - both int and char are considered nature numbers,
     the difference only occurs at function intepretation level.
   - pointers are also considered nature numbers.
+
 ```cpp
   var a, c;
   a = 1;
@@ -14,15 +16,15 @@ In addition to basic whileDB language features, we support the following feature
   *a; // valid dereference, but no range check.
 ```
 
-
 - Array class (fixed length).
   - build-in function: len(a: array): -> ⟦length of array a⟧.
-  - writable subscript access with range check. 
+  - writable subscript access with range check.
     - deemed as new expression type, not binary operator.
   - '=' assignment. (copy first elements till one array reaches range limit, remaining elements of receiver are set to 0)
-  <!-- - '<=>' lexicographical comparison. -->
-  <!-- - '+' concatenation. -->
-  <!-- - build-in function: to_array(x, n) -> n-element array containing x's. -->
+    <!-- - '<=>' lexicographical comparison. -->
+    <!-- - '+' concatenation. -->
+    <!-- - build-in function: to_array(x, n) -> n-element array containing x's. -->
+
 ```cpp
 var a[10];
 *(a + 1) = 1; // a[1], no range check
@@ -31,6 +33,7 @@ var b = 1;
 ```
 
 - Char literal. (C style, using single quote, string are considered array of char)
+
 ```cpp
 c = 'a'
 ```
@@ -38,6 +41,7 @@ c = 'a'
 - String support.
   - char literal (single quote) -> var
   - string literal (double quote) -> var[]
+
 ```cpp
 var str[4];
 str = "0123"; // var[3] = {48, 49, 50, 51}
@@ -45,55 +49,64 @@ a = '0'; // '0' = 49
 ```
 
 - Initializer list literal.
+
 ```cpp
 {1, 2} // var[2]
 ```
 
 - Variable initialization at creation (including array).
+
 ```cpp
 var a = 1;
 var b[2] = {0, 1};
 var c[2] = {1}; // c[] = {1, 0}, comply with = syntax for array.
 var s[3] = "abc";
 ```
+
 - Multiple variables' declaration in one statement.
+
 ```cpp
 var a, b = 3, c; // declare a, b, c. initialize b = 3. (not a = 3, b = c !!! not python)
 ```
 
 - Helper function:
   - EXPR: read_string(): read in a string deliminated by '[ \n\t\rEOF]', and return it. (buffer is automatically managed to avoid overflow.)
-  - CMD: write_string(a: array): interpret a's elements as char and write sequentially. 
+  - CMD: write_string(a: array): interpret a's elements as char and write sequentially.
 
 # Lexer:
 
 new symbols:
-+ , // to support initalizer list only
-+ [
-+ ]
-+ '
-+ "
+
+- , // to support initalizer list only
+- [
+- ]
+- '
+- "
 <!-- + to_array -->
-+ len
-+ read_string
-+ write_string
+- len
+- read_string
+- write_string
 
 deprecated symbols:
-+ none
+
+- none
 
 new tokens:
-+ COMMA: ,
-+ LSB: [
-+ RSB: ]
-+ CL: char literal
-+ SL: string literal
+
+- COMMA: ,
+- LSB: [
+- RSB: ]
+- CL: char literal
+- SL: string literal
 <!-- + ILL: initializer list literal -->
-+ LEN: len
-+ RS: read_string
-+ WS: write_string
+- LEN: len
+- RS: read_string
+- WS: write_string
 
 # Syntax:
+
 <!-- - <=>: comparison should support array. -->
+
 - =: should support array.
 <!-- - \+: should support array. -->
 - []: array subscript access.
@@ -106,13 +119,71 @@ new tokens:
 - write_string: write a given array as chars.
 
 new expression types:
+
 - LEN: len
 - RS: read_string
 - SA: [] subscript access
 
 new command types:
+
 - WS: write_string
 
 # Interpreter:
 
-not determined yet.
+## currently implemented func
+
+- initialize with value (var, array)
+- get the len of array
+- support for multiple declarations
+- support for array subscript access (Error when subscript is negative, but not when subscript is out of bound, just like the feature in C language)
+- support for array assignment statements (i.e. ```a[i] = j```)
+- ```write_string()```
+
+## details about array initialization
+- the length of the array is not required to be a CONST (e.g. an integer ```A``` is also accepted)
+- the logical sequence of the array initialization: 
+  
+  - check if the initialization length is legal
+  - check if the initializers are legal
+  - array assignment
+  - check if there are too many initializers
+ 
+
+## file description
+
+the `var_state` is stored in a hash-table, where each var is in the form of `(key, value_type)`. detailed implementation is in the `lib.c`
+
+```cpp
+struct value_type
+{
+  int is_array;
+  union
+  {
+    long long single_value;
+    struct
+    {
+      long long *array;
+      int length;
+    } array_value;
+  } data;
+};
+
+struct SLL_hash_cell
+{
+  char *key;
+  struct value_type value;
+  struct SLL_hash_cell *tail;
+};
+```
+
+in the `lib.c` we implemented func to get and set the value in the hash-table
+
+```cpp
+long long SLL_hash_get_var(struct SLL_hash_table *t, char *key);
+void SLL_hash_set_var(struct SLL_hash_table *t, char *key, long long value);
+long long *SLL_hash_get_array(struct SLL_hash_table *t, char *key);
+void SLL_hash_set_array(struct SLL_hash_table *t, char *key, int len, long long *arr);
+long long SLL_hash_get_array_len(struct SLL_hash_table *t, char *key);
+int SLL_hash_var_type(struct SLL_hash_table *t, char *key); // 0->var ; 1-> array ; -1 -> not exist
+void SLL_hash_delete(struct SLL_hash_table *t, char *key);
+```

@@ -174,6 +174,11 @@ long long eval(struct expr *e)
   {
     long long *arr = SLL_hash_get_array(var_state, e->d.SA.array_arg->d.VAR.name);
     long long index = eval(e->d.SA.index_arg);
+    if(arr == NULL)
+    {
+      printf("Error: array not found.\n");
+      exit(1);
+    }
     if (index < 0)
     { // modified to check array bounds
       printf("Error: Array index is negative!\n");
@@ -226,17 +231,37 @@ void step(struct res_prog *r)
       case T_DECLARARRAYINIT:
       {
         long long size = eval(c->d.DECL.declaration->d.DECLARARRAYINIT.size);
+        if(size <= 0)
+        {
+          printf("Error: array size is negative\n");
+          exit(1);
+        }
         long long *arr = (long long *)malloc(size * sizeof(long long));
         struct expr_list *init = c->d.DECL.declaration->d.DECLARARRAYINIT.init;
         for (long long i = 0; i < size; i++)
         {
           if (init != NULL)
           {
+            // check if it is a name of other array, if so error
+            if (init->head->t == T_VAR)
+            {
+              if (SLL_hash_var_type(var_state, init->head->d.VAR.name) == 1)
+              {
+                printf("Error: array initializer is an array\n");
+                exit(1);
+              }
+            }
+
             arr[i] = eval(init->head);
             init = init->tail;
           }
           else
             arr[i] = 0;
+        }
+        if(init != NULL)
+        {
+          printf("Error: too many initializers\n");
+          exit(1);
         }
         SLL_hash_set_array(var_state, c->d.DECL.declaration->d.DECLARARRAYINIT.name, size, arr);
         break;
@@ -325,8 +350,20 @@ void step(struct res_prog *r)
       r->foc = NULL;
       break;
     }
+    case T_WS:
+    {
+      long long *arr = SLL_hash_get_array(var_state, c->d.WS.arg->d.VAR.name);
+      long long len = SLL_hash_get_array_len(var_state, c->d.WS.arg->d.VAR.name);
+      for (long long i = 0; i < len; i++)
+      {
+        printf("%c", (char)arr[i]);
+      }
+      printf("\n");
+      r->foc = NULL;
+      break;
     }
   }
+}
 }
 
 int test_end(struct res_prog *r)

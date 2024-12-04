@@ -78,8 +78,10 @@ void SLL_hash_set_var(struct SLL_hash_table *t, char *key, long long value, bool
   {
     if (strcmp(key, (*d)->key) == 0)
     {
-      if ((*d)->value.is_array)
-        printf("Error: variable is an array.\n");
+      if ((*d)->value.is_array) {
+        printf("Error: variable is an array!\n");
+        exit(1);
+      }
       (*d)->value.data.single_value = value;
       return;
     }

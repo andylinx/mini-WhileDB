@@ -1,3 +1,2 @@
-var s[3] = "12";
-s[2] = 1;
-write_int(t)
+var t[5] = {"ghgyu"};
+write_int(t[0])
