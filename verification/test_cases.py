@@ -1,3 +1,42 @@
+#!/usr/bin/env python
+
+# Run test cases specified in json.
+# for json format, see sample.json.
+"""
+[
+  {
+      "name": "cpp",
+      "method": "cpp"
+  },
+  {
+      "name": "output",
+      "method": "output"
+  },
+  {
+      "name": "error",
+      "method": "error"
+  }
+]
+"""
+# for test case layout, see test_onecase.py
+"""
+method:
+- cpp
+    + test.jtl
+    + test.cpp
+    + test.in (optional)
+    # compare with equivalent cpp outcome
+- output
+    + test.jtl
+    + test.in (optional)
+    + test.ref
+    # compare output with test.ref
+- error
+    + test.jtl
+    + test.in (optional)
+    # expect to raise error
+"""
+
 import argparse
 import json
 import subprocess
