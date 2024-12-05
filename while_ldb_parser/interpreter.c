@@ -608,6 +608,57 @@ void step(struct res_prog *r)
       }
       r->foc = NULL;
       break;
+    case T_ASGNLIST:
+      switch (c->d.ASGNLIST.left->t)
+      {
+      case T_VAR:
+      {
+        struct value_type string_array = eval(c->d.ASGNLIST.left);
+        struct expr_list *str_list = c->d.ASGNLIST.right;
+        struct expr_list *str_list_copy = c->d.ASGNLIST.right;
+        if (!string_array.is_array)
+        {
+          printf("invalid assignlist left value\n");
+          exit(1);
+        }
+        long long *arr = string_array.data.array_value.array;
+        for (int i = 0; i < string_array.data.array_value.length; i++)
+          arr[i] = 0;
+        int len = 0;
+        while (str_list != NULL && len < string_array.data.array_value.length)
+        {
+          tmp = eval(str_list->head);
+          if (tmp.is_array)
+          {
+            printf("invalid assignlist value\n");
+            exit(1);
+          }
+          arr[len] = tmp.data.single_value;
+          len++;
+          str_list = str_list->tail;
+        }
+        break;
+      }
+      case T_DEREF:
+      {
+        printf("Error: variable is not an array!\n");
+        exit(1);
+        break;
+      }
+      case T_SA:
+      {
+        printf("Error: variable is not an array!\n");
+        exit(1);
+        break;
+      }
+      default:
+      {
+        printf("Error: variable is not an array!\n");
+        exit(1);
+      }
+      }
+      r->foc = NULL;
+      break;
     case T_SEQ:
       r->foc = c->d.SEQ.left;
       r->ectx = CL_Cons(c->d.SEQ.right, r->ectx);
@@ -681,6 +732,8 @@ void step(struct res_prog *r)
       long long len = SLL_hash_get_array_len(var_state, c->d.WS.arg->d.VAR.name);
       for (long long i = 0; i < len; i++)
       {
+        if (arr[i] <= 0 || arr[i] > 127)
+          break;
         printf("%c", (char)arr[i]);
       }
       printf("\n");
@@ -706,8 +759,8 @@ void step(struct res_prog *r)
       r->foc = NULL;
       break;
     }
+    }
   }
-}
 }
 
 int test_end(struct res_prog *r)
