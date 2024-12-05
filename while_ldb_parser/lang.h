@@ -50,7 +50,9 @@ enum CmdType {
   T_WI, // write int
   T_WC, // write char
   T_WS, // write string
-  T_ASGNDEREF  // *left = right
+  T_WSL, // write string list
+  T_ASGNDEREF,  // *left = right
+  T_ASGNLIST // left = right
 };
 
 enum DeclType {
@@ -93,7 +95,9 @@ struct cmd {
 
     // new commands
     struct {struct expr * arg; } WS;
+    struct {struct expr_list * arg; } WSL;
     struct {struct expr * left; struct expr * right; } ASGNDEREF;
+    struct {struct expr * left; struct expr_list * right; } ASGNLIST;
   } d;
 };
 
@@ -157,7 +161,9 @@ struct cmd * TWriteChar(struct expr * arg);
 
 //new commands
 struct cmd * TWriteString(struct expr * arg);
+struct cmd * TWriteStringList(struct expr_list * str_list);
 struct cmd * TAsgnDeref(struct expr * left, struct expr * right);
+struct cmd * TAsgnList(struct expr * left, struct expr_list * right);
 
 // helper functions
 // const char* get_token_name(int token);

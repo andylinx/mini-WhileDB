@@ -119,9 +119,6 @@ struct expr * TSubscriptAccess(struct expr * array_arg, struct expr * index_arg)
   return res;
 }
 
-
-
-
 // command constructors
 
 
@@ -186,6 +183,12 @@ struct cmd * TWriteString(struct expr * arg) {
   res -> d.WS.arg = arg;
   return res;
 }
+struct cmd * TWriteStringList(struct expr_list * str_list) {
+    struct cmd * res = new_cmd_ptr();
+    res->t = T_WSL;
+    res->d.WSL.arg = str_list;
+    return res;
+}
 
 struct cmd * TAsgnDeref(struct expr * left, struct expr * right) {
   struct cmd * res = new_cmd_ptr();
@@ -194,6 +197,20 @@ struct cmd * TAsgnDeref(struct expr * left, struct expr * right) {
   res -> d.ASGN.right = right;
   return res;
 }
+
+struct cmd * TAsgnList(struct expr * left, struct expr_list * right) {
+    // printf("Is here!\n");
+    // print_expr(left);
+    // printf("\n");
+    // print_expr_list(right);
+    // printf("\n");
+    struct cmd * res = new_cmd_ptr();
+    res->t = T_ASGNLIST;
+    res->d.ASGNLIST.left = left;
+    res->d.ASGNLIST.right = right;
+    return res;
+}
+
 
 // helper functions
 
@@ -361,11 +378,23 @@ void print_cmd(struct cmd * c) {
     print_expr(c -> d.WC.arg);
     printf(")");
     break;
+  case T_WSL:
+    printf("WRITE_STRING_LIST(");
+    print_expr_list(c -> d.WSL.arg);
+    printf(")");
+    break;
   case T_ASGNDEREF:
     printf("ASGNDEREF(");
     print_expr(c -> d.ASGN.left);
     printf(",");
     print_expr(c -> d.ASGN.right);
+    printf(")");
+    break;
+  case T_ASGNLIST:
+    printf("ASGNLIST(");
+    print_expr(c -> d.ASGNLIST.left);
+    printf(",");
+    print_expr_list(c -> d.ASGNLIST.right);
     printf(")");
     break;
   }

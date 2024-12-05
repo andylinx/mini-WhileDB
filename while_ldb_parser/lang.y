@@ -144,6 +144,10 @@ NT_CMD:
   {
     $$ = TAsgn($1, $3);
   }
+| NT_EXPR TM_ASGNOP TM_SL
+  {
+    $$ = TAsgnList($1, TStringToExprList($3));
+  }
 | NT_CMD TM_SEMICOL NT_CMD
   {
     $$ = (TSeq($1,$3));
@@ -168,6 +172,10 @@ NT_CMD:
 | TM_WS TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
   {
     $$ = (TWriteString($3));
+  }
+| TM_WS TM_LEFT_PAREN TM_SL TM_RIGHT_PAREN
+  {
+    $$ = (TWriteStringList(TStringToExprList($3)));
   }
 ;
 
