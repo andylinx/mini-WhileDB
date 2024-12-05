@@ -1,0 +1,5 @@
+var x, y[2];
+y = "AAA";
+write_string(y);
+y="b";
+write_string(y)
