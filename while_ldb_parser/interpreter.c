@@ -654,7 +654,7 @@ void step(struct res_prog *r)
       tmp = eval(c->d.WI.arg);
       if (tmp.is_array)
       {
-        printf("invalid output value");
+        printf("invalid output value\n");
         exit(1);
       }
       long long rhs = tmp.data.single_value;
@@ -667,7 +667,7 @@ void step(struct res_prog *r)
       tmp = eval(c->d.WC.arg);
       if (tmp.is_array)
       {
-        printf("invalid output value");
+        printf("invalid output value\n");
         exit(1);
       }
       char rhs = (char)tmp.data.single_value;
@@ -687,8 +687,27 @@ void step(struct res_prog *r)
       r->foc = NULL;
       break;
     }
+    case T_WSL:
+    {
+      struct expr_list *str_list = c->d.WSL.arg;
+      while (str_list != NULL)
+      {
+        tmp = eval(str_list->head);
+        if (tmp.is_array)
+        {
+          printf("invalid output value\n");
+          exit(1);
+        }
+        char rhs = (char)tmp.data.single_value;
+        printf("%c", rhs);
+        str_list = str_list->tail;
+      }
+      printf("\n");
+      r->foc = NULL;
+      break;
     }
   }
+}
 }
 
 int test_end(struct res_prog *r)
