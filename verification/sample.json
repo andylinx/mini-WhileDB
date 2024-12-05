@@ -1,0 +1,14 @@
+[
+  {
+      "name": "cpp",
+      "method": "cpp"
+  },
+  {
+      "name": "output",
+      "method": "output"
+  },
+  {
+      "name": "error",
+      "method": "error"
+  }
+]

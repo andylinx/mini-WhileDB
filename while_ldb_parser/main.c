@@ -141,9 +141,11 @@ int main(int argc, char **argv)
         printf("File %s can't be opened.\n", argv[1]);
         return 0;
     }
-    yyparse();
-    print_cmd(root);
-    printf("\n");
+    int yyresult = yyparse();
+    if (yyresult) // parsing error
+        return 1;
+    // print_cmd(root);
+    // printf("\n");
     fclose(yyin);
     struct res_prog *r = init_res_prog(root);
     while (!test_end(r))
