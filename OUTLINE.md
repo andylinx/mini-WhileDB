@@ -20,38 +20,48 @@ In addition to basic whileDB language features, we support the following feature
   - build-in function: len(a: array): -> ⟦length of array a⟧.
   - writable subscript access with range check.
     - deemed as new expression type, not binary operator.
-  - '=' assignment. (copy first elements till one array reaches range limit, remaining elements of receiver are set to 0)
+  <!-- - '=' assignment. (copy first elements till one array reaches range limit, remaining elements of receiver are set to 0) -->
     <!-- - '<=>' lexicographical comparison. -->
     <!-- - '+' concatenation. -->
     <!-- - build-in function: to_array(x, n) -> n-element array containing x's. -->
-
 ```cpp
 var a[10];
 *(a + 1) = 1; // a[1], no range check
 a[1] = 1;
 var b = 1;
 ```
-
-- Char literal. (C style, using single quote, string are considered array of char)
+- Pointer support.
+  - for normal pointer from malloc, ptr+n is byte level.
+  - for array pointer, arr+n is integer level (= ptr + n * 8 byte on 64-bit machine).
 
 ```cpp
-c = 'a'
+  var p = malloc(80), a[10], b;
+  b = *(p + 8); // access 2nd int in p
+  b = a[1]; // access 2nd int in a
+
 ```
 
 - String support.
   - char literal (single quote) -> var
   - string literal (double quote) -> var[]
+    + can be used as array initializer
+    + can be assigned to array
+      - in case of overflow, truncation is applied. (no '\0' reserved if truncated)
+    + can be passed to write_string()
 
 ```cpp
 var str[4];
-str = "0123"; // var[3] = {48, 49, 50, 51}
+str = "0123"; // an '\0' will be added
 a = '0'; // '0' = 49
+
+var str[4]="012";
 ```
 
 - Initializer list literal.
+  - only applicable for array initialize
 
 ```cpp
-{1, 2} // var[2]
+var a[2] = {1, 2};
 ```
 
 - Variable initialization at creation (including array).
@@ -59,8 +69,8 @@ a = '0'; // '0' = 49
 ```cpp
 var a = 1;
 var b[2] = {0, 1};
-var c[2] = {1}; // c[] = {1, 0}, comply with = syntax for array.
-var s[3] = "abc";
+var c[2] = {1}; // c[] = {1, 0}, comply with C style
+var s[3] = "ab";
 ```
 
 - Multiple variables' declaration in one statement.
@@ -71,13 +81,13 @@ var a, b = 3, c; // declare a, b, c. initialize b = 3. (not a = 3, b = c !!! not
 
 - Helper function:
   - EXPR: read_string(): read in a string deliminated by '[ \n\t\rEOF]', and return it. (buffer is automatically managed to avoid overflow.)
-  - CMD: write_string(a: array): interpret a's elements as char and write sequentially.
+  - CMD: write_string(a: array/string_literal): interpret a's elements as char and write sequentially till '\0' or end of array. 
 
 # Lexer:
 
 new symbols:
 
-- , // to support initalizer list only
+- ,
 - [
 - ]
 - '
