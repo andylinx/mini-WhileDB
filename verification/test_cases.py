@@ -1,20 +1,23 @@
 #!/usr/bin/env python
 
 # Run test cases specified in json.
-# for json format, see sample.json.
+# for json format, see sample.json. (if method not specified, default to "induce")
 """
 [
   {
-      "name": "cpp",
+      "name": "tester_self_test/cpp",
       "method": "cpp"
   },
   {
-      "name": "output",
+      "name": "tester_self_test/output",
       "method": "output"
   },
   {
-      "name": "error",
+      "name": "tester_self_test/error",
       "method": "error"
+  },
+  {
+      "name": "tester_self_test/induce"
   }
 ]
 """
@@ -24,18 +27,26 @@ method:
 - cpp
     + test.jtl
     + test.cpp
-    + test.in (optional)
-    # compare with equivalent cpp outcome
+    + *.in (optional, if not provided, assume no input)
+    # compare with equivalent cpp output
 - output
     + test.jtl
-    + test.in (optional)
+    + test.in (optional, if not provided, assume no input)
     + test.ref
     # compare output with test.ref
 - error
     + test.jtl
     + test.in (optional)
     # expect to raise error
-"""
+- induce
+    + method.conf (containing one of cpp/output/error)
+    + other materials required by induced method
+    # read method.conf and apply specified method.
+    
+For all test modules:
+    - Return 0 for matched results (correct).
+    - Return 1 for mismatched results or runtime errors (incorrect).
+    - Return -1 for non-testing errors (tester error)."""
 
 import argparse
 import json
@@ -49,10 +60,10 @@ def parse_arguments():
     parser.add_argument('-i', '--input-dir', type=str, default=input_dir_default, help=f'Input directory for stored testcases (default={input_dir_default})')
     
     log_dir_default = "log"
-    parser.add_argument('-l', '--log-dir', type=str, default=log_dir_default, help=f'Log directory (default={log_dir_default})')
+    parser.add_argument('--log-dir', type=str, default=log_dir_default, help=f'Log directory (default={log_dir_default})')
     
-    temp_dir_default = "tmp"
-    parser.add_argument('-t', '--temp-dir', type=str, default=temp_dir_default, help=f'Temporary directory (default={temp_dir_default})')
+    tmp_dir_default = "tmp"
+    parser.add_argument('--tmp-dir', type=str, default=tmp_dir_default, help=f'Temporary directory (default={tmp_dir_default})')
     
     target_default = "../while_ldb_parser/main"
     parser.add_argument('-T', '--target', type=str, default=target_default, help=f'Target executable for testing (default={target_default})')
@@ -60,20 +71,28 @@ def parse_arguments():
     compile_default = "/usr/bin/g++"
     parser.add_argument('-c', '--compiler', type=str, default=compile_default, help=f'Path to g++ for cpp method (default={compile_default})')
     
+    timeout_default = 1
+    parser.add_argument('-t', '--timeout', type=int, default=timeout_default, help=f'Timeout threshold for subprocesses in seconds (default={timeout_default})')
+    
     return parser.parse_args()
 
 def test_onecase(test_case, args):
     cmd = [
         './test_onecase.py',
         '-n', test_case['name'],
-        '-m', test_case['method'],
+        '-m', test_case.get("method", "induce"),
         '-i', args.input_dir,
-        '-l', args.log_dir,
-        '-t', args.temp_dir,
+        '--log-dir', args.log_dir,
+        '--tmp-dir', args.tmp_dir,
         '-T', args.target,
-        '-c', args.compiler
+        '-c', args.compiler,
+        '-t', str(args.timeout)
     ]
-    result = subprocess.run(cmd)
+    try:
+        result = subprocess.run(cmd)
+    except Exception as e:
+        print(f"Tester exception detected on test case {test_case['name']}: {e}")
+        return -1
     return result.returncode
 
 if __name__ == "__main__":
@@ -111,4 +130,3 @@ if __name__ == "__main__":
         print(name)
         
     exit(len(incorrect_list) != 0)
-            

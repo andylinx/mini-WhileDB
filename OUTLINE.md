@@ -46,7 +46,7 @@ var b = 1;
   - string literal (double quote) -> var[]
     + can be used as array initializer
     + can be assigned to array
-      - in case of overflow, truncation is applied. (no '\0' reserved if truncated)
+      - in case of overflow(too many elements), raise exception.
     + can be passed to write_string()
 
 ```cpp
@@ -59,6 +59,8 @@ var str[4]="012";
 
 - Initializer list literal.
   - only applicable for array initialize
+  - in case of overflow (too many elements), raise exception.
+
 
 ```cpp
 var a[2] = {1, 2};

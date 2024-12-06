@@ -12,6 +12,7 @@ const char *get_token_name(int token)
 {
     switch (token)
     {
+    
     case YYEOF:
         return "YYEOF";
     case YYerror:
@@ -142,11 +143,17 @@ int main(int argc, char **argv)
         return 0;
     }
     int yyresult = yyparse();
-    if (yyresult) // parsing error
+    
+    if (yyresult) {
+        // parsing error
+        printf("syntax error\n");
         return 1;
+    }
+    fclose(yyin);
+    
     // print_cmd(root);
     // printf("\n");
-    fclose(yyin);
+
     struct res_prog *r = init_res_prog(root);
     while (!test_end(r))
     {

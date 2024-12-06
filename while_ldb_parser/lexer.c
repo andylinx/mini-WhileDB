@@ -1138,15 +1138,17 @@ YY_RULE_SETUP
 case 43:
 YY_RULE_SETUP
 #line 191 "lang.l"
-{printf("%s",yytext);
+{
+    // exit(1); // not recoginized symbol
+    //  printf("%s",yytext);
      return -1; }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 193 "lang.l"
+#line 195 "lang.l"
 ECHO;
 	YY_BREAK
-#line 1150 "lexer.c"
+#line 1152 "lexer.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2163,6 +2165,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 193 "lang.l"
+#line 195 "lang.l"
 
 

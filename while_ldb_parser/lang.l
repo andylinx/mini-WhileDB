@@ -188,6 +188,8 @@
 
 [ \t\n\r]    { };
 
-.   {printf("%s",yytext);
+.   {
+    // exit(1); // not recoginized symbol
+    //  printf("%s",yytext);
      return -1; }
 %%
