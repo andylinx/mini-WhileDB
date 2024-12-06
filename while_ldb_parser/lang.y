@@ -218,6 +218,10 @@ NT_EXPR_2:
     $$ = TUnOp(T_UMINUS,$2);
   }
   // added rules for len and read string
+| TM_LEN TM_LEFT_PAREN TM_SL TM_RIGHT_PAREN
+  {
+    $$ = TLenList(TStringToExprList($3));
+  }
 | TM_LEN TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
   {
     $$ = TLen($3);

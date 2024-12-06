@@ -104,6 +104,21 @@ struct expr * TLen(struct expr * arg) {
   res -> d.LEN.arg = arg;
   return res;
 }
+struct expr * TLenList(struct expr_list * list) {
+    struct expr * res = new_expr_ptr();
+    res->t = T_CONST;
+    
+    // Count the length of the expression list
+    int length = 0;
+    struct expr_list * current = list;
+    while (current != NULL) {
+        length++;
+        current = current->tail;
+    }
+    
+    res->d.CONST.value = length;
+    return res;
+}
 
 struct expr * TReadString() {
   struct expr * res = new_expr_ptr();
@@ -532,5 +547,6 @@ void print_decl(struct decl * d) {
     break;
   }
 }
+
 
 

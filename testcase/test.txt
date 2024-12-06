@@ -1,3 +1,2 @@
-var x, y[10];
-y = "AAA";
-write_string("Haa")
+var a[10] = "aaa";
+write_int(len("aaaaaa"))

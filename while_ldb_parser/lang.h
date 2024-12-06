@@ -145,6 +145,7 @@ struct expr * TReadChar();
 
 // new expressions
 struct expr * TLen(struct expr * arg);
+struct expr * TLenList(struct expr_list * list);
 struct expr * TReadString();
 struct expr * TSubscriptAccess(struct expr * array_arg, struct expr * index_arg);
 struct expr * TConstChar(char c);
@@ -183,5 +184,7 @@ struct decl * TDeclSeq(struct decl * left, struct decl * right);
 struct decl * TDeclVarInit(char * name, struct expr * init);
 struct decl * TDeclArrayInit(char * name, struct expr * size, struct expr_list * init);
 struct expr_list * TExprList(struct expr * head, struct expr_list * tail);
+
+
 
 #endif // LANG_H_INCLUDED
