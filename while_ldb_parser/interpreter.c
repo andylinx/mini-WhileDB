@@ -625,7 +625,7 @@ void step(struct res_prog *r)
         for (int i = 0; i < string_array.data.array_value.length; i++)
           arr[i] = 0;
         int len = 0;
-        while (str_list != NULL && len < string_array.data.array_value.length)
+        while (str_list != NULL)
         {
           tmp = eval(str_list->head);
           if (tmp.is_array)
@@ -633,6 +633,19 @@ void step(struct res_prog *r)
             printf("invalid assignlist value\n");
             exit(1);
           }
+          len++;
+          str_list = str_list->tail;
+        }
+        if (len > string_array.data.array_value.length)
+        {
+          printf("Error: too many initializers\n");
+          exit(1);
+        }
+        str_list = str_list_copy;
+        len = 0;
+        while (str_list != NULL)
+        {
+          tmp = eval(str_list->head);
           arr[len] = tmp.data.single_value;
           len++;
           str_list = str_list->tail;
@@ -722,7 +735,7 @@ void step(struct res_prog *r)
         exit(1);
       }
       char rhs = (char)tmp.data.single_value;
-      printf("%c\n", rhs);
+      printf("%c", rhs);
       r->foc = NULL;
       break;
     }

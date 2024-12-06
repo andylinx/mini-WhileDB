@@ -1,0 +1,8 @@
+var x, y[4]="abcd";
+x= 'x';
+write_char(x);
+write_string(y);
+y = "ab";
+write_string(y);
+y="abcde";
+write_string(y)
