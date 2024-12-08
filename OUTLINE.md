@@ -77,7 +77,8 @@ var a, b = 3, c; // declare a, b, c. initialize b = 3. (not a = 3, b = c; not py
 ```
 
 - Helper function:
-  - CMD: read_string(a: array): read in a string deliminated by '[ \n\t\rEOF]', and write to a[] as nature numbers. (overflow part is discarded.)
+  - EXPR: read_string(): read in a string deliminated by '[ \n\t\rEOF]', and return it as (equivalent to) string literal. 
+    - buffer is automatically managed to avoid overflow while reading. (but may overflow at assignment after return).
   - CMD: write_string(S: array/string_literal): interpret S's elements as char and write sequentially till '\0' or end of S. 
     - if non-ASCII element found, raise exception.
 
