@@ -397,9 +397,9 @@ struct value_type eval(struct expr *e)
   }
   case T_RS:
   {
-    //read string first, then convert to array
-    char str[5000000];
-    scanf("%4999999s", str);
+    // read string first, then convert to array
+    char str[50000];
+    scanf("%49999s", str);
     long long *arr = (long long *)malloc(strlen(str) * sizeof(long long));
     for (int i = 0; i < strlen(str); i++)
       arr[i] = (long long)str[i];
@@ -571,13 +571,17 @@ void step(struct res_prog *r)
         // is_array = 0, single_value = value
         // is_array = 1, error
         // is_array = 2, string assignment
-        if(tmp.is_array == 0) {
+        if (tmp.is_array == 0)
+        {
           SLL_hash_set_var(var_state, c->d.ASGN.left->d.VAR.name, tmp.data.single_value, 0);
-        } else if(tmp.is_array == 2) {
+        }
+        else if (tmp.is_array == 2)
+        {
           // do not call SLL_hash_set_array, handle here, do the assignment, no need to malloc
           long long *arr = SLL_hash_get_array(var_state, c->d.ASGN.left->d.VAR.name);
           long long len = SLL_hash_get_array_len(var_state, c->d.ASGN.left->d.VAR.name);
-          if(len < tmp.data.array_value.length) {
+          if (len < tmp.data.array_value.length)
+          {
             printf("Error: too many initializers\n");
             exit(1);
           }
@@ -589,7 +593,9 @@ void step(struct res_prog *r)
               arr[i] = 0;
           }
           free(tmp.data.array_value.array);
-        } else {
+        }
+        else
+        {
           printf("invalid var\n");
           exit(1);
         }
@@ -782,6 +788,9 @@ void step(struct res_prog *r)
       long long *arr = tmp.data.array_value.array;
       for (int i = 0; i < tmp.data.array_value.length; i++)
       {
+        // only output printable characters
+        if (arr[i] <= 0 || arr[i] > 127)
+          break;
         printf("%c", (char)arr[i]);
       }
       printf("\n");
