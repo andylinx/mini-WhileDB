@@ -34,7 +34,6 @@ struct expr * TConst(unsigned int value) {
 
 // new expression
 struct expr * TConstChar(char c) {
-  // printf("TConstChar: %c\n", c);
   struct expr * e = new_expr_ptr();
   e -> t = T_CONST;
   e -> d.CONST.value = (int)c;

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 
 # Run test cases specified in json.
 # for json format, see sample.json. (if method not specified, default to "induce")
@@ -57,6 +57,7 @@ For all test modules:
 import argparse
 import json
 import subprocess
+import os
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Run multiple test cases from a JSON configuration')
@@ -83,8 +84,13 @@ def parse_arguments():
     return parser.parse_args()
 
 def test_onecase(test_case, args):
+    # Get the directory of the current script
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    test_onecase_path = os.path.join(script_dir, 'test_onecase.py')
+    
     cmd = [
-        './test_onecase.py',
+        'python3',  # Explicitly use python3
+        test_onecase_path,  # Use absolute path
         '-n', test_case['name'],
         '-m', test_case.get("method", "induce"),
         '-i', args.input_dir,

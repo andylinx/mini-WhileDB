@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 import argparse
 import logging
 import os
@@ -85,7 +85,12 @@ def setup_logger(name, log_dir):
 
 def compare_files(file1, file2, logger):
     try:
-        result = subprocess.run(['diff', '-Zs', file1, file2], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        result = subprocess.run(
+            ['diff', '-Zs', file1, file2], 
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.PIPE, 
+            universal_newlines=True
+        )
         if result.returncode == 0:
             return True
         else:
@@ -130,16 +135,28 @@ def test_cpp(args, logger):
 
     # Compile test.cpp
     try:
-        result = subprocess.run([compiler, test_cpp, '-o', compiled_cpp], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        result = subprocess.run(
+            [compiler, test_cpp, '-o', compiled_cpp], 
+            check=True, 
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.PIPE,
+            universal_newlines=True
+        )
         
         if result.returncode != 0:
-            raise Exception("non-zero return code.")
+            raise subprocess.CalledProcessError(result.returncode, result.args, result.stdout, result.stderr)
         
         logger.info(f"Compiled {test_cpp} to {compiled_cpp}")
         logger.debug(result.stdout)
         logger.warning(result.stderr)
+    except (subprocess.CalledProcessError, OSError) as e:
+        error_msg = str(e)
+        if hasattr(e, 'stderr'):
+            error_msg = e.stderr
+        logger.error(f"Error compiling {test_cpp}: {error_msg}")
+        return -1
     except Exception as e:
-        logger.error(f"Error compiling {test_cpp}: {e.stderr}")
+        logger.error(f"Unexpected error compiling {test_cpp}: {str(e)}")
         return -1
 
     # Run target with test.jtl for each .in file

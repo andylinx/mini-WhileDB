@@ -547,10 +547,10 @@ static const yytype_int16 yyrline[] =
 {
        0,    69,    69,    83,    87,    91,    95,    99,   103,   107,
      111,   115,   119,   127,   131,   139,   143,   147,   151,   155,
-     159,   163,   167,   172,   176,   184,   188,   192,   196,   200,
-     204,   208,   212,   216,   221,   225,   229,   233,   237,   245,
-     249,   253,   257,   261,   265,   269,   273,   277,   281,   285,
-     289,   293,   297
+     159,   163,   167,   172,   176,   184,   188,   196,   200,   204,
+     208,   212,   216,   220,   225,   229,   233,   237,   241,   249,
+     253,   257,   261,   265,   269,   273,   277,   281,   285,   289,
+     293,   297,   301
 };
 #endif
 
@@ -1442,221 +1442,225 @@ yyreduce:
   case 26: /* NT_EXPR_2: TM_CL  */
 #line 189 "lang.y"
   {
-    (yyval.e) = (TConstChar((yyvsp[0].cl)));
+    char *processed = (char *)malloc(strlen((yyvsp[0].cl)) + 1);
+    process_escape_characters((yyvsp[0].cl), processed);
+    struct expr * e = TConstChar(processed[0]);
+    free(processed);
+    (yyval.e) = e;
   }
-#line 1448 "parser.c"
+#line 1452 "parser.c"
     break;
 
   case 27: /* NT_EXPR_2: TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN  */
-#line 193 "lang.y"
+#line 197 "lang.y"
   {
     (yyval.e) = ((yyvsp[-1].e));
   }
-#line 1456 "parser.c"
+#line 1460 "parser.c"
     break;
 
   case 28: /* NT_EXPR_2: TM_IDENT  */
-#line 197 "lang.y"
+#line 201 "lang.y"
   {
     (yyval.e) = (TVar((yyvsp[0].i)));
   }
-#line 1464 "parser.c"
+#line 1468 "parser.c"
     break;
 
   case 29: /* NT_EXPR_2: TM_RI TM_LEFT_PAREN TM_RIGHT_PAREN  */
-#line 201 "lang.y"
+#line 205 "lang.y"
   {
     (yyval.e) = (TReadInt());
   }
-#line 1472 "parser.c"
+#line 1476 "parser.c"
     break;
 
   case 30: /* NT_EXPR_2: TM_RC TM_LEFT_PAREN TM_RIGHT_PAREN  */
-#line 205 "lang.y"
+#line 209 "lang.y"
   {
     (yyval.e) = (TReadChar());
   }
-#line 1480 "parser.c"
+#line 1484 "parser.c"
     break;
 
   case 31: /* NT_EXPR_2: TM_MALLOC TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN  */
-#line 209 "lang.y"
+#line 213 "lang.y"
   {
     (yyval.e) = (TMalloc((yyvsp[-1].e)));
   }
-#line 1488 "parser.c"
+#line 1492 "parser.c"
     break;
 
   case 32: /* NT_EXPR_2: TM_NOT NT_EXPR  */
-#line 213 "lang.y"
+#line 217 "lang.y"
   {
     (yyval.e) = (TUnOp(T_NOT,(yyvsp[0].e)));
   }
-#line 1496 "parser.c"
+#line 1500 "parser.c"
     break;
 
   case 33: /* NT_EXPR_2: TM_MINUS NT_EXPR  */
-#line 217 "lang.y"
+#line 221 "lang.y"
   {
     (yyval.e) = TUnOp(T_UMINUS,(yyvsp[0].e));
   }
-#line 1504 "parser.c"
+#line 1508 "parser.c"
     break;
 
   case 34: /* NT_EXPR_2: TM_LEN TM_LEFT_PAREN TM_SL TM_RIGHT_PAREN  */
-#line 222 "lang.y"
+#line 226 "lang.y"
   {
     (yyval.e) = TLenList(TStringToExprList((yyvsp[-1].sl)));
   }
-#line 1512 "parser.c"
+#line 1516 "parser.c"
     break;
 
   case 35: /* NT_EXPR_2: TM_LEN TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN  */
-#line 226 "lang.y"
+#line 230 "lang.y"
   {
     (yyval.e) = TLen((yyvsp[-1].e));
   }
-#line 1520 "parser.c"
+#line 1524 "parser.c"
     break;
 
   case 36: /* NT_EXPR_2: TM_RS TM_LEFT_PAREN TM_RIGHT_PAREN  */
-#line 230 "lang.y"
+#line 234 "lang.y"
   {
     (yyval.e) = TReadString();
   }
-#line 1528 "parser.c"
+#line 1532 "parser.c"
     break;
 
   case 37: /* NT_EXPR_2: TM_IDENT TM_LSB NT_EXPR TM_RSB  */
-#line 234 "lang.y"
+#line 238 "lang.y"
   {
     (yyval.e) = TSubscriptAccess(TVar((yyvsp[-3].i)), (yyvsp[-1].e));
   }
-#line 1536 "parser.c"
+#line 1540 "parser.c"
     break;
 
   case 38: /* NT_EXPR_2: TM_MUL NT_EXPR  */
-#line 238 "lang.y"
+#line 242 "lang.y"
   {
     (yyval.e) = TDeref((yyvsp[0].e));
   }
-#line 1544 "parser.c"
+#line 1548 "parser.c"
     break;
 
   case 39: /* NT_EXPR: NT_EXPR_2  */
-#line 246 "lang.y"
+#line 250 "lang.y"
   {
     (yyval.e) = ((yyvsp[0].e));
   }
-#line 1552 "parser.c"
+#line 1556 "parser.c"
     break;
 
   case 40: /* NT_EXPR: NT_EXPR TM_MUL NT_EXPR  */
-#line 250 "lang.y"
+#line 254 "lang.y"
   {
     (yyval.e) = (TBinOp(T_MUL,(yyvsp[-2].e),(yyvsp[0].e)));
   }
-#line 1560 "parser.c"
+#line 1564 "parser.c"
     break;
 
   case 41: /* NT_EXPR: NT_EXPR TM_PLUS NT_EXPR  */
-#line 254 "lang.y"
+#line 258 "lang.y"
   {
     (yyval.e) = (TBinOp(T_PLUS,(yyvsp[-2].e),(yyvsp[0].e)));
   }
-#line 1568 "parser.c"
+#line 1572 "parser.c"
     break;
 
   case 42: /* NT_EXPR: NT_EXPR TM_MINUS NT_EXPR  */
-#line 258 "lang.y"
+#line 262 "lang.y"
   {
     (yyval.e) = (TBinOp(T_MINUS,(yyvsp[-2].e),(yyvsp[0].e)));
   }
-#line 1576 "parser.c"
+#line 1580 "parser.c"
     break;
 
   case 43: /* NT_EXPR: NT_EXPR TM_DIV NT_EXPR  */
-#line 262 "lang.y"
+#line 266 "lang.y"
   {
     (yyval.e) = (TBinOp(T_DIV,(yyvsp[-2].e),(yyvsp[0].e)));
   }
-#line 1584 "parser.c"
+#line 1588 "parser.c"
     break;
 
   case 44: /* NT_EXPR: NT_EXPR TM_MOD NT_EXPR  */
-#line 266 "lang.y"
+#line 270 "lang.y"
   {
     (yyval.e) = (TBinOp(T_MOD,(yyvsp[-2].e),(yyvsp[0].e)));
   }
-#line 1592 "parser.c"
+#line 1596 "parser.c"
     break;
 
   case 45: /* NT_EXPR: NT_EXPR TM_LT NT_EXPR  */
-#line 270 "lang.y"
+#line 274 "lang.y"
   {
     (yyval.e) = (TBinOp(T_LT,(yyvsp[-2].e),(yyvsp[0].e)));
   }
-#line 1600 "parser.c"
+#line 1604 "parser.c"
     break;
 
   case 46: /* NT_EXPR: NT_EXPR TM_GT NT_EXPR  */
-#line 274 "lang.y"
+#line 278 "lang.y"
   {
     (yyval.e) = (TBinOp(T_GT,(yyvsp[-2].e),(yyvsp[0].e)));
   }
-#line 1608 "parser.c"
+#line 1612 "parser.c"
     break;
 
   case 47: /* NT_EXPR: NT_EXPR TM_LE NT_EXPR  */
-#line 278 "lang.y"
+#line 282 "lang.y"
   {
     (yyval.e) = (TBinOp(T_LE,(yyvsp[-2].e),(yyvsp[0].e)));
   }
-#line 1616 "parser.c"
+#line 1620 "parser.c"
     break;
 
   case 48: /* NT_EXPR: NT_EXPR TM_GE NT_EXPR  */
-#line 282 "lang.y"
+#line 286 "lang.y"
   {
     (yyval.e) = (TBinOp(T_GE,(yyvsp[-2].e),(yyvsp[0].e)));
   }
-#line 1624 "parser.c"
+#line 1628 "parser.c"
     break;
 
   case 49: /* NT_EXPR: NT_EXPR TM_EQ NT_EXPR  */
-#line 286 "lang.y"
+#line 290 "lang.y"
   {
     (yyval.e) = (TBinOp(T_EQ,(yyvsp[-2].e),(yyvsp[0].e)));
   }
-#line 1632 "parser.c"
+#line 1636 "parser.c"
     break;
 
   case 50: /* NT_EXPR: NT_EXPR TM_NE NT_EXPR  */
-#line 290 "lang.y"
+#line 294 "lang.y"
   {
     (yyval.e) = (TBinOp(T_NE,(yyvsp[-2].e),(yyvsp[0].e)));
   }
-#line 1640 "parser.c"
+#line 1644 "parser.c"
     break;
 
   case 51: /* NT_EXPR: NT_EXPR TM_AND NT_EXPR  */
-#line 294 "lang.y"
+#line 298 "lang.y"
   {
     (yyval.e) = (TBinOp(T_AND,(yyvsp[-2].e),(yyvsp[0].e)));
   }
-#line 1648 "parser.c"
+#line 1652 "parser.c"
     break;
 
   case 52: /* NT_EXPR: NT_EXPR TM_OR NT_EXPR  */
-#line 298 "lang.y"
+#line 302 "lang.y"
   {
     (yyval.e) = (TBinOp(T_OR,(yyvsp[-2].e),(yyvsp[0].e)));
   }
-#line 1656 "parser.c"
+#line 1660 "parser.c"
     break;
 
 
-#line 1660 "parser.c"
+#line 1664 "parser.c"
 
       default: break;
     }
@@ -1849,7 +1853,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 304 "lang.y"
+#line 308 "lang.y"
 
 
 void yyerror(char* s)

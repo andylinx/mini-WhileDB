@@ -112,7 +112,7 @@ union YYSTYPE
 	struct decl * d;
 	void * none;
 	char * sl;
-	char cl;
+	char * cl;
 	struct expr_list * el;
 
 #line 119 "parser.h"

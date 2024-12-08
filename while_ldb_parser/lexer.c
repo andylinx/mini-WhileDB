@@ -956,7 +956,7 @@ YY_RULE_SETUP
 { // char literal 
     char *text = yytext + 1;        // skip opening quote
     text[yyleng-2] = '\0';          // remove closing quote
-    yylval.cl = text[0];            // store the character value
+    yylval.cl = text;            // store the character value
     return TM_CL;
 }
 	YY_BREAK

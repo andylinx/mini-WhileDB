@@ -16,7 +16,7 @@
 	struct decl * d;
 	void * none;
 	char * sl;
-	char cl;
+	char * cl;
 	struct expr_list * el;
 }
 
@@ -187,7 +187,11 @@ NT_EXPR_2:
   }
 | TM_CL
   {
-    $$ = (TConstChar($1));
+    char *processed = (char *)malloc(strlen($1) + 1);
+    process_escape_characters($1, processed);
+    struct expr * e = TConstChar(processed[0]);
+    free(processed);
+    $$ = e;
   }
 | TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
   {
