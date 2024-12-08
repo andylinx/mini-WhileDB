@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "lang.h"
 #include "interpreter.h"
 #include "lib.h"
@@ -394,6 +395,19 @@ struct value_type eval(struct expr *e)
     result.data.single_value = (long long)res;
     return result;
   }
+  case T_RS:
+  {
+    //read string first, then convert to array
+    char str[5000000];
+    scanf("%4999999s", str);
+    long long *arr = (long long *)malloc(strlen(str) * sizeof(long long));
+    for (int i = 0; i < strlen(str); i++)
+      arr[i] = (long long)str[i];
+    result.is_array = 2;
+    result.data.array_value.array = arr;
+    result.data.array_value.length = strlen(str);
+    return result;
+  }
   case T_LEN:
   {
     long long len = SLL_hash_get_array_len(var_state, e->d.LEN.arg->d.VAR.name);
@@ -554,13 +568,31 @@ void step(struct res_prog *r)
       case T_VAR:
       {
         tmp = eval(c->d.ASGN.right);
-        if (tmp.is_array)
-        {
-          printf("invalid var");
+        // is_array = 0, single_value = value
+        // is_array = 1, error
+        // is_array = 2, string assignment
+        if(tmp.is_array == 0) {
+          SLL_hash_set_var(var_state, c->d.ASGN.left->d.VAR.name, tmp.data.single_value, 0);
+        } else if(tmp.is_array == 2) {
+          // do not call SLL_hash_set_array, handle here, do the assignment, no need to malloc
+          long long *arr = SLL_hash_get_array(var_state, c->d.ASGN.left->d.VAR.name);
+          long long len = SLL_hash_get_array_len(var_state, c->d.ASGN.left->d.VAR.name);
+          if(len < tmp.data.array_value.length) {
+            printf("Error: too many initializers\n");
+            exit(1);
+          }
+          for (long long i = 0; i < len; i++)
+          {
+            if (i < tmp.data.array_value.length)
+              arr[i] = tmp.data.array_value.array[i];
+            else
+              arr[i] = 0;
+          }
+          free(tmp.data.array_value.array);
+        } else {
+          printf("invalid var\n");
           exit(1);
         }
-        long long rhs = tmp.data.single_value;
-        SLL_hash_set_var(var_state, c->d.ASGN.left->d.VAR.name, rhs, 0);
         break;
       }
       case T_DEREF:
@@ -741,12 +773,15 @@ void step(struct res_prog *r)
     }
     case T_WS:
     {
-      long long *arr = SLL_hash_get_array(var_state, c->d.WS.arg->d.VAR.name);
-      long long len = SLL_hash_get_array_len(var_state, c->d.WS.arg->d.VAR.name);
-      for (long long i = 0; i < len; i++)
+      tmp = eval(c->d.WS.arg);
+      if (tmp.is_array == 0)
       {
-        if (arr[i] <= 0 || arr[i] > 127)
-          break;
+        printf("invalid output value\n");
+        exit(1);
+      }
+      long long *arr = tmp.data.array_value.array;
+      for (int i = 0; i < tmp.data.array_value.length; i++)
+      {
         printf("%c", (char)arr[i]);
       }
       printf("\n");

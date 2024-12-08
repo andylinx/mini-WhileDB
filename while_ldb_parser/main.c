@@ -151,8 +151,8 @@ int main(int argc, char **argv)
     }
     fclose(yyin);
     
-    // print_cmd(root);
-    // printf("\n");
+    //print_cmd(root);
+    //printf("\n");
 
     struct res_prog *r = init_res_prog(root);
     while (!test_end(r))
