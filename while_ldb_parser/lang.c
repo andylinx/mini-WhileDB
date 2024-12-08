@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "lang.h"
 // #include "parser.h"
 
@@ -50,8 +51,16 @@ struct expr_list * TStringToExprList(char * str) {
     if (str == NULL || *str == '\0') {
         return NULL;
     }
-    struct expr * e = TConstChar(*str);
-    return TExprList(e, TStringToExprList(str + 1));
+
+    // Process escape sequences
+    char *processed = (char *)malloc(strlen(str) + 1);
+    process_escape_characters(str, processed);
+    
+    struct expr * e = TConstChar(*processed);
+    struct expr_list * result = TExprList(e, TStringToExprList(processed + 1));
+    
+    free(processed);
+    return result;
 }
 
 struct expr * TBinOp(enum BinOpType op, struct expr * left, struct expr * right) {
@@ -548,5 +557,74 @@ void print_decl(struct decl * d) {
   }
 }
 
+// Helper function to convert octal digits
+int parse_octal(const char **src) {
+    int value = 0;
+    int count = 0;
+    while (count < 3 && **src >= '0' && **src <= '7') {
+        value = value * 8 + (**src - '0');
+        (*src)++;
+        count++;
+    }
+    (*src)--; // Step back one position for consistency
+    return value;
+}
 
+// Helper function to convert hexadecimal digits
+int parse_hex(const char **src) {
+    int value = 0;
+    while (isxdigit(**src)) {
+        if (**src >= '0' && **src <= '9')
+            value = value * 16 + (**src - '0');
+        else if (**src >= 'a' && **src <= 'f')
+            value = value * 16 + (**src - 'a' + 10);
+        else if (**src >= 'A' && **src <= 'F')
+            value = value * 16 + (**src - 'A' + 10);
+        (*src)++;
+    }
+    (*src)--; // Step back one position for consistency
+    return value;
+}
 
+void process_escape_characters(const char *A, char *B) {
+    const char *src = A;  // Pointer to traverse the source string
+    char *dst = B;        // Pointer to construct the destination string
+
+    while (*src) {
+        if (*src == '\\' && *(src + 1)) {
+            src++; // Move to the character after '\'
+            switch (*src) {
+                case 'n': *dst = '\n'; break;
+                case 't': *dst = '\t'; break;
+                case 'r': *dst = '\r'; break;
+                case 'v': *dst = '\v'; break;
+                case 'f': *dst = '\f'; break;
+                case 'a': *dst = '\a'; break;
+                case 'b': *dst = '\b'; break;
+                case '\\': *dst = '\\'; break;
+                case '\'': *dst = '\''; break;
+                case '\"': *dst = '\"'; break;
+                case '\?': *dst = '\?'; break;
+                case '0':  // Null character or octal values
+                    src++;
+                    *dst = parse_octal(&src);
+                    break;
+                case 'x':  // Hexadecimal values
+                    src++;
+                    *dst = parse_hex(&src);
+                    break;
+                default:
+                    // Unrecognized escape, keep the original `\` and the next character
+                    *(dst++) = '\\';
+                    *dst = *src;
+                    break;
+            }
+        } else {
+            // Copy regular characters
+            *dst = *src;
+        }
+        src++;
+        dst++;
+    }
+    *dst = '\0'; // Null-terminate the result string
+}

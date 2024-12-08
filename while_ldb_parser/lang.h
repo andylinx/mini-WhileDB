@@ -185,6 +185,6 @@ struct decl * TDeclVarInit(char * name, struct expr * init);
 struct decl * TDeclArrayInit(char * name, struct expr * size, struct expr_list * init);
 struct expr_list * TExprList(struct expr * head, struct expr_list * tail);
 
-
+void process_escape_characters(const char *input, char *output);
 
 #endif // LANG_H_INCLUDED
