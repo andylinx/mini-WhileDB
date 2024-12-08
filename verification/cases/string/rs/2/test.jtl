@@ -1,0 +1,8 @@
+var a[5];
+a = read_string();
+var i = 0;
+while (i < len(a)) do {
+  write_int(a[i]);
+  i = i + 1
+};
+write_char(10)

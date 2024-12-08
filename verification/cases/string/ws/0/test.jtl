@@ -1,0 +1,4 @@
+var a[10000];
+a = read_string();
+var i = 0;
+write_string(a)

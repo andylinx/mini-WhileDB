@@ -1,0 +1,22 @@
+[
+  { "name": "string/cl/0" },
+  { "name": "string/cl/1" },
+  { "name": "string/cl/2" },
+  { "name": "string/cl/3" },
+  { "name": "string/cl/4" },
+  { "name": "string/cl/5" },
+  { "name": "string/rs/0" },
+  { "name": "string/rs/1" },
+  { "name": "string/rs/2" },
+  { "name": "string/sl/0" },
+  { "name": "string/sl/1" },
+  { "name": "string/sl/2" },
+  { "name": "string/sl/3" },
+  { "name": "string/sl/4" },
+  { "name": "string/sl/5" },
+  { "name": "string/sl/6" },
+  { "name": "string/ws/0" },
+  { "name": "string/ws/1" },
+  { "name": "string/ws/2" },
+  { "name": "string/ws/3" }
+]

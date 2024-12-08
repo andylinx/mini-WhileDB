@@ -1,0 +1,3 @@
+var a[10] = "abcdef";
+write_int(len(a));
+write_int(len("abcdef"))

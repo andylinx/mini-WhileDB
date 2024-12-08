@@ -26,7 +26,7 @@ method:
 - error
     + test.jtl
     + test.in (optional)
-    # expect to raise error or time-out
+    # expect to raise error or time-out (but not syntax error)
 - induce
     + method.conf (containing one of cpp/output/error)
     + other materials required by induced method
@@ -46,7 +46,7 @@ def parse_arguments():
     method_default = "induce"
     parser.add_argument('-m', '--method', type=str, default = method_default, choices=method_choices, help=f'Method (choice from {method_choices}, default={method_default})')
     
-    input_dir_default = "testcase"
+    input_dir_default = "cases"
     parser.add_argument('-i', '--input-dir', type=str, default=input_dir_default, help=f'Input directory for stored testcases(default={input_dir_default})')
     
     log_dir_default = "log"
@@ -92,7 +92,7 @@ def compare_files(file1, file2, logger):
             logger.error(f"Differences found:\n{result.stdout}")
             return False
     except subprocess.CalledProcessError as e:
-        logger.error(f"Error running diff: {e}")
+        logger.error(f"CalledProcessError at diff: {e}")
         return False
 
 def test_cpp(args, logger):
@@ -131,36 +131,51 @@ def test_cpp(args, logger):
     # Compile test.cpp
     try:
         result = subprocess.run([compiler, test_cpp, '-o', compiled_cpp], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        
+        if result.returncode != 0:
+            raise Exception("non-zero return code.")
+        
         logger.info(f"Compiled {test_cpp} to {compiled_cpp}")
         logger.debug(result.stdout)
         logger.warning(result.stderr)
-    except subprocess.CalledProcessError as e:
+    except Exception as e:
         logger.error(f"Error compiling {test_cpp}: {e.stderr}")
         return -1
 
     # Run target with test.jtl for each .in file
     for test_in in input_files:
         try:
+            result = None
             with open(test_in, 'r') as input_file, open(output_out, 'w') as output_file:
-                subprocess.run([target, test_jtl], stdin=input_file, stdout=output_file, stderr=subprocess.PIPE, check=True, timeout=timeout)
+                result=subprocess.run([target, test_jtl], stdin=input_file, stdout=output_file, stderr=subprocess.PIPE, check=True, timeout=timeout)
+                
             logger.info(f"Executed {target} with {test_jtl} and {test_in}, output saved to {output_out}")
+            if result.returncode != 0:
+                logger.error(f"Execution of {target} {test_jtl} and {test_in} failed with return code {result.returncode}")
+                
         except subprocess.TimeoutExpired:
             logger.error(f"Execution of {target} with {test_jtl} and {test_in} timed out.")
             return 1
         except subprocess.CalledProcessError as e:
-            logger.error(f"Error running {target} with {test_jtl} and {test_in}: {e}")
+            logger.error(f"CalledProcessError at {target} with {test_jtl} and {test_in}: {e}")
             return 1
 
         # Run compiled_cpp with test.in
         try:
+            result = None
             with open(test_in, 'r') as input_file, open(output_ref, 'w') as output_file:
-                subprocess.run([compiled_cpp], stdin=input_file, stdout=output_file, stderr=subprocess.PIPE, check=True, timeout=timeout)
+                result = subprocess.run([compiled_cpp], stdin=input_file, stdout=output_file, stderr=subprocess.PIPE, check=True, timeout=timeout)
             logger.info(f"Executed {compiled_cpp} with {test_in}, output saved to {output_ref}")
+            
+            if result.returncode != 0:
+                logger.error(f"Execution of {compiled_cpp} with {test_in} failed with return code {result.returncode}")
+                return -1
+            
         except subprocess.TimeoutExpired:
             logger.error(f"Execution of {compiled_cpp} with {test_in} timed out.")
             return -1
         except subprocess.CalledProcessError as e:
-            logger.error(f"Error running {compiled_cpp} with {test_in}: {e}")
+            logger.error(f"CalledProcessError at {compiled_cpp} with {test_in}: {e}")
             return -1
 
         # Compare outputs
@@ -193,8 +208,8 @@ def test_output(args, logger):
         return -1
 
     # Ensure the temporary directory exists
-    os.makedirs(tmp_dir, exist_ok=True)
-
+    os.makedirs(os.path.dirname(output_out), exist_ok=True)
+    
     # Copy test.ref to tmp/<name>.ref
     shutil.copy(test_ref, output_ref)
     logger.info(f"Copied {test_ref} to {output_ref}")
@@ -203,16 +218,22 @@ def test_output(args, logger):
     try:        
         input_file = open(test_in, 'r') if os.path.exists(test_in) else None
         output_file = open(output_out, 'w')
-        subprocess.run([target, test_jtl], stdin=input_file, stdout=output_file, stderr=subprocess.PIPE, check=True, timeout=timeout)
+        result = subprocess.run([target, test_jtl], stdin=input_file, stdout=output_file, stderr=subprocess.PIPE, timeout=timeout)
         if input_file:
             input_file.close()
         output_file.close()
+        
         logger.info(f"Executed {target} {test_jtl}, output saved to {output_out}")
+        
+        if result.returncode != 0:
+            logger.error(f"Execution of {target} {test_jtl} failed with return code {result.returncode}")
+            return 1
+        
     except subprocess.TimeoutExpired:
         logger.error(f"Execution of {target} {test_jtl} timed out.")
         return 1
     except subprocess.CalledProcessError as e:
-        logger.error(f"Error running {target} {test_jtl}: {e}")
+        logger.error(f"CalledProcessError at {target} {test_jtl}: {e}")
         if input_file:
             input_file.close()
         output_file.close()
@@ -242,7 +263,7 @@ def test_error(args, logger):
         return -1
 
     # Ensure the temporary directory exists
-    os.makedirs(tmp_dir, exist_ok=True)
+    os.makedirs(os.path.dirname(output_out), exist_ok=True)
 
     # Run target with test.jtl
     try:
@@ -252,16 +273,21 @@ def test_error(args, logger):
         if input_file:
             input_file.close()
         output_file.close()
+        
         logger.info(f"Executed {target} {test_jtl}, output saved to {output_out}")
         
         if result.returncode == 1:
+            with open(output_out, 'r') as f: # if syntax error, return 2
+                if "syntax error" in f.read():
+                    logger.error(f"Unexpected syntax error found in {target} {test_jtl}")
+                    return 2
             logger.info(f"Expected error occurred with return code 1 while running {target} {test_jtl}")
             return 0
         elif result.returncode == 0:
             logger.error(f"Expected error did not occur and {target} {test_jtl} exited with 0 normally")
             return 1
         else:
-            logger.error(f"Expected return code 1 but got {result.returncode} while running {target} {test_jtl}")
+            logger.error(f"Expected return code 1 but got {result.returncode} while running {target} {test_jtl}; program may have crashed.")
             return 1
     except subprocess.TimeoutExpired: # time out is also considered error expected
         logger.info(f"Execution of {target} {test_jtl} timed out (as expected).")
@@ -273,7 +299,7 @@ def test_error(args, logger):
         logger.error(f"Unexpected error occurred while running {target} {test_jtl}: {e}")
         return -1
     
-if __name__ == "__main__":
+def main():
     args = parse_arguments()
     
     logger = setup_logger(args.name, args.log_dir)
@@ -295,6 +321,8 @@ if __name__ == "__main__":
             exit(-1)
         
         args.method = induced_method
+    
+    logger.info(f"Test name: {args.name}; Method: {args.method}")
 
     outcome = -1
     if args.method == "cpp":
@@ -306,4 +334,8 @@ if __name__ == "__main__":
     
     logger.info("----------------END OF TEST----------------")
     
+    return outcome
+
+if __name__ == "__main__":
+    outcome = main()
     exit(outcome)

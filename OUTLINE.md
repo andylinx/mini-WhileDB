@@ -57,16 +57,13 @@ a = '0'; // '0' = 49
 var str[4]="012";
 ```
 
-- Initializer list literal.
-  - only applicable for array initialize
-  - in case of overflow (too many elements), raise exception.
+- Variable declaration extension
+  - Variable initialization at creation (including array).
+    - Initializer list literal.
+      - only applicable for array initialize
+      - in case of overflow (too many elements), raise exception.
 
-
-```cpp
-var a[2] = {1, 2};
-```
-
-- Variable initialization at creation (including array).
+  - Multiple variables' declaration in one statement.
 
 ```cpp
 var a = 1;
@@ -75,15 +72,14 @@ var c[2] = {1}; // c[] = {1, 0}, comply with C style
 var s[3] = "ab";
 ```
 
-- Multiple variables' declaration in one statement.
-
 ```cpp
-var a, b = 3, c; // declare a, b, c. initialize b = 3. (not a = 3, b = c !!! not python)
+var a, b = 3, c; // declare a, b, c. initialize b = 3. (not a = 3, b = c; not python)
 ```
 
 - Helper function:
-  - EXPR: read_string(): read in a string deliminated by '[ \n\t\rEOF]', and return it. (buffer is automatically managed to avoid overflow.)
-  - CMD: write_string(a: array/string_literal): interpret a's elements as char and write sequentially till '\0' or end of array. 
+  - CMD: read_string(a: array): read in a string deliminated by '[ \n\t\rEOF]', and write to a[] as nature numbers. (overflow part is discarded.)
+  - CMD: write_string(S: array/string_literal): interpret S's elements as char and write sequentially till '\0' or end of S. 
+    - if non-ASCII element found, raise exception.
 
 # Lexer:
 

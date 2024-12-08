@@ -23,6 +23,11 @@
 """
 # for test case layout, see test_onecase.py
 """
+input_path:
+<input-dir>/<name>/*
+output_path:
+<output_dir>/<name>.*
+
 method:
 - cpp
     + test.jtl
@@ -37,7 +42,7 @@ method:
 - error
     + test.jtl
     + test.in (optional)
-    # expect to raise error
+    # expect to raise error or time-out (but not syntax error)
 - induce
     + method.conf (containing one of cpp/output/error)
     + other materials required by induced method
@@ -46,7 +51,8 @@ method:
 For all test modules:
     - Return 0 for matched results (correct).
     - Return 1 for mismatched results or runtime errors (incorrect).
-    - Return -1 for non-testing errors (tester error)."""
+    - Return -1 for non-testing errors (tester error).
+"""
 
 import argparse
 import json
@@ -56,7 +62,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='Run multiple test cases from a JSON configuration')
     parser.add_argument('config', type=str, help='Path to the JSON configuration file')
     
-    input_dir_default = "testcase"
+    input_dir_default = "cases"
     parser.add_argument('-i', '--input-dir', type=str, default=input_dir_default, help=f'Input directory for stored testcases (default={input_dir_default})')
     
     log_dir_default = "log"
@@ -108,6 +114,7 @@ if __name__ == "__main__":
     }
 
     incorrect_list = []
+    tester_error_list = []
     
     for test_case in test_cases:
         result = test_onecase(test_case, args)
@@ -119,14 +126,21 @@ if __name__ == "__main__":
             else:
                 print(f"Test case '{test_case['name']}' failed due to a tester error.")
                 summary['tester error'] += 1
+                tester_error_list.append(test_case['name'])
         else:
             print(f"Test case '{test_case['name']}' passed successfully.")
             summary['correct'] += 1
             
-    print(f"summary: {summary}")
+    print(f"Summary: {summary}")
     if len(incorrect_list):
-      print(f"incorrect cases: ")
+      print(f"Incorrect cases: ")
       for name in incorrect_list:
-        print(name)
+        print(f"> {name}")
+    
+    if len(tester_error_list):
+      print(f"Tester error cases: ")
+      for name in tester_error_list:
+        print(f"> {name}")
+    
         
-    exit(len(incorrect_list) != 0)
+    exit(len(incorrect_list) != 0 or len(tester_error_list) != 0)

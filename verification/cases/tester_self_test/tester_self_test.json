@@ -1,0 +1,17 @@
+[
+    {
+        "name": "tester_self_test/cpp",
+        "method": "cpp"
+    },
+    {
+        "name": "tester_self_test/output",
+        "method": "output"
+    },
+    {
+        "name": "tester_self_test/error",
+        "method": "error"
+    },
+    {
+        "name": "tester_self_test/induce"
+    }
+]

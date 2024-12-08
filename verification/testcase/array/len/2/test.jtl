@@ -1,0 +1,2 @@
+var a;
+write_int(len(a))

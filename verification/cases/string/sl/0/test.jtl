@@ -1,0 +1,4 @@
+var a[2];
+a = "01234";
+write_int(a[0]);
+write_int(a[1])

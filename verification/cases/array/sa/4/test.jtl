@@ -1,0 +1,15 @@
+var a[5] = {0, 1, 2, 3, 4};
+var i = 0;
+while (i < len(a)) do {
+  if (i % 2 != 0) then {
+    a[i] = - a[i]
+  } else {
+    a[i] = a[i]
+  };
+  i = i + 1
+};
+i = 0;
+while (i < len(a)) do {
+  write_int(a[i]);
+  i = i + 1
+}

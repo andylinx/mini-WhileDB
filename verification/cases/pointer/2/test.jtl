@@ -1,0 +1,14 @@
+var a = malloc(16);
+var b;
+var c[2];
+var d = malloc(8);
+*a = read_int();
+*(a + 8) = read_int();
+b = a;
+write_int(*b);
+c[0] = a;
+c[1] = a + 8;
+write_int(**c);
+write_int(**(c + 1));
+*d = a;
+write_int(**d)
