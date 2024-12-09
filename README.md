@@ -39,7 +39,7 @@ Some more details:
     
 
 
-## Evaluation
+## Verification
 We have designed a comprehensive test suite to evaluate the correctness of our implementation.
 Our test suite includes various test cases, including but not limited to:
 1. Basic usage of WhileDB language.
