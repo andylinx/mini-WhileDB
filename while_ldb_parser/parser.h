@@ -39,7 +39,7 @@
 # define YY_YY_PARSER_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 0
+# define YYDEBUG 1
 #endif
 #if YYDEBUG
 extern int yydebug;
@@ -86,7 +86,15 @@ extern int yydebug;
     TM_MINUS = 287,                /* TM_MINUS  */
     TM_MUL = 288,                  /* TM_MUL  */
     TM_DIV = 289,                  /* TM_DIV  */
-    TM_MOD = 290                   /* TM_MOD  */
+    TM_MOD = 290,                  /* TM_MOD  */
+    TM_LEN = 291,                  /* TM_LEN  */
+    TM_RS = 292,                   /* TM_RS  */
+    TM_WS = 293,                   /* TM_WS  */
+    TM_LSB = 294,                  /* TM_LSB  */
+    TM_RSB = 295,                  /* TM_RSB  */
+    TM_COMMA = 296,                /* TM_COMMA  */
+    TM_SL = 297,                   /* TM_SL  */
+    TM_CL = 298                    /* TM_CL  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -97,13 +105,17 @@ union YYSTYPE
 {
 #line 11 "lang.y"
 
-unsigned int n;
-char * i;
-struct expr * e;
-struct cmd * c;
-void * none;
+	unsigned int n;
+	char * i;
+	struct expr * e;
+	struct cmd * c;
+	struct decl * d;
+	void * none;
+	char * sl;
+	char * cl;
+	struct expr_list * el;
 
-#line 107 "parser.h"
+#line 119 "parser.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

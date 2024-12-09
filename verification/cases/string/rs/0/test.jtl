@@ -1,0 +1,8 @@
+var a[10000];
+a = read_string();
+var i = 0;
+while (i < len(a) && a[i] != 0) do {
+  write_char(a[i]);
+  i = i + 1
+};
+write_char(10)

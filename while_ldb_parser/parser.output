@@ -4,95 +4,131 @@ Grammar
 
     1 NT_WHOLE: NT_CMD
 
-    2 NT_CMD: TM_VAR TM_IDENT
-    3       | NT_EXPR TM_ASGNOP NT_EXPR
-    4       | NT_CMD TM_SEMICOL NT_CMD
-    5       | TM_IF NT_EXPR TM_THEN TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE TM_ELSE TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
-    6       | TM_WHILE NT_EXPR TM_DO TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
-    7       | TM_WI TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
-    8       | TM_WC TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
+    2 NT_DECL: TM_IDENT
+    3        | TM_IDENT TM_ASGNOP NT_EXPR
+    4        | TM_IDENT TM_LSB NT_EXPR TM_RSB
+    5        | TM_IDENT TM_LSB NT_EXPR TM_RSB TM_ASGNOP TM_LEFT_BRACE NT_EXPR_LIST TM_RIGHT_BRACE
+    6        | TM_IDENT TM_COMMA NT_DECL
+    7        | TM_IDENT TM_ASGNOP NT_EXPR TM_COMMA NT_DECL
+    8        | TM_IDENT TM_LSB NT_EXPR TM_RSB TM_COMMA NT_DECL
+    9        | TM_IDENT TM_LSB NT_EXPR TM_RSB TM_ASGNOP TM_LEFT_BRACE NT_EXPR_LIST TM_RIGHT_BRACE TM_COMMA NT_DECL
+   10        | TM_IDENT TM_LSB NT_EXPR TM_RSB TM_ASGNOP TM_SL
+   11        | TM_IDENT TM_LSB NT_EXPR TM_RSB TM_ASGNOP TM_SL TM_COMMA NT_DECL
 
-    9 NT_EXPR_2: TM_NAT
-   10          | TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
-   11          | TM_IDENT
-   12          | TM_RI TM_LEFT_PAREN TM_RIGHT_PAREN
-   13          | TM_RC TM_LEFT_PAREN TM_RIGHT_PAREN
-   14          | TM_MALLOC TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
-   15          | TM_NOT NT_EXPR_2
-   16          | TM_MINUS NT_EXPR_2
-   17          | TM_MUL NT_EXPR_2
+   12 NT_EXPR_LIST: NT_EXPR
+   13             | NT_EXPR TM_COMMA NT_EXPR_LIST
 
-   18 NT_EXPR: NT_EXPR_2
-   19        | NT_EXPR TM_MUL NT_EXPR
-   20        | NT_EXPR TM_PLUS NT_EXPR
-   21        | NT_EXPR TM_MINUS NT_EXPR
-   22        | NT_EXPR TM_DIV NT_EXPR
-   23        | NT_EXPR TM_MOD NT_EXPR
-   24        | NT_EXPR TM_LT NT_EXPR
-   25        | NT_EXPR TM_GT NT_EXPR
-   26        | NT_EXPR TM_LE NT_EXPR
-   27        | NT_EXPR TM_GE NT_EXPR
-   28        | NT_EXPR TM_EQ NT_EXPR
-   29        | NT_EXPR TM_NE NT_EXPR
-   30        | NT_EXPR TM_AND NT_EXPR
-   31        | NT_EXPR TM_OR NT_EXPR
+   14 NT_CMD: TM_VAR NT_DECL
+   15       | NT_EXPR TM_ASGNOP NT_EXPR
+   16       | NT_EXPR TM_ASGNOP TM_SL
+   17       | NT_CMD TM_SEMICOL NT_CMD
+   18       | TM_IF NT_EXPR TM_THEN TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE TM_ELSE TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
+   19       | TM_WHILE NT_EXPR TM_DO TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
+   20       | TM_WI TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
+   21       | TM_WC TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
+   22       | TM_WS TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
+   23       | TM_WS TM_LEFT_PAREN TM_SL TM_RIGHT_PAREN
+
+   24 NT_EXPR_2: TM_NAT
+   25          | TM_CL
+   26          | TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
+   27          | TM_IDENT
+   28          | TM_RI TM_LEFT_PAREN TM_RIGHT_PAREN
+   29          | TM_RC TM_LEFT_PAREN TM_RIGHT_PAREN
+   30          | TM_MALLOC TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
+   31          | TM_NOT NT_EXPR
+   32          | TM_MINUS NT_EXPR
+   33          | TM_LEN TM_LEFT_PAREN TM_SL TM_RIGHT_PAREN
+   34          | TM_LEN TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
+   35          | TM_RS TM_LEFT_PAREN TM_RIGHT_PAREN
+   36          | TM_IDENT TM_LSB NT_EXPR TM_RSB
+   37          | TM_MUL NT_EXPR
+
+   38 NT_EXPR: NT_EXPR_2
+   39        | NT_EXPR TM_MUL NT_EXPR
+   40        | NT_EXPR TM_PLUS NT_EXPR
+   41        | NT_EXPR TM_MINUS NT_EXPR
+   42        | NT_EXPR TM_DIV NT_EXPR
+   43        | NT_EXPR TM_MOD NT_EXPR
+   44        | NT_EXPR TM_LT NT_EXPR
+   45        | NT_EXPR TM_GT NT_EXPR
+   46        | NT_EXPR TM_LE NT_EXPR
+   47        | NT_EXPR TM_GE NT_EXPR
+   48        | NT_EXPR TM_EQ NT_EXPR
+   49        | NT_EXPR TM_NE NT_EXPR
+   50        | NT_EXPR TM_AND NT_EXPR
+   51        | NT_EXPR TM_OR NT_EXPR
 
 
 Terminals, with rules where they appear
 
     $end (0) 0
     error (256)
-    TM_NAT <n> (258) 9
-    TM_IDENT <i> (259) 2 11
-    TM_LEFT_BRACE <none> (260) 5 6
-    TM_RIGHT_BRACE <none> (261) 5 6
-    TM_LEFT_PAREN <none> (262) 7 8 10 12 13 14
-    TM_RIGHT_PAREN <none> (263) 7 8 10 12 13 14
-    TM_SEMICOL <none> (264) 4
-    TM_MALLOC <none> (265) 14
-    TM_RI <none> (266) 12
-    TM_RC <none> (267) 13
-    TM_WI <none> (268) 7
-    TM_WC <none> (269) 8
-    TM_VAR <none> (270) 2
-    TM_IF <none> (271) 5
-    TM_THEN <none> (272) 5
-    TM_ELSE <none> (273) 5
-    TM_WHILE <none> (274) 6
-    TM_DO <none> (275) 6
-    TM_ASGNOP <none> (276) 3
-    TM_OR <none> (277) 31
-    TM_AND <none> (278) 30
-    TM_NOT <none> (279) 15
-    TM_LT <none> (280) 24
-    TM_LE <none> (281) 26
-    TM_GT <none> (282) 25
-    TM_GE <none> (283) 27
-    TM_EQ <none> (284) 28
-    TM_NE <none> (285) 29
-    TM_PLUS <none> (286) 20
-    TM_MINUS <none> (287) 16 21
-    TM_MUL <none> (288) 17 19
-    TM_DIV <none> (289) 22
-    TM_MOD <none> (290) 23
+    TM_NAT <n> (258) 24
+    TM_IDENT <i> (259) 2 3 4 5 6 7 8 9 10 11 27 36
+    TM_LEFT_BRACE <none> (260) 5 9 18 19
+    TM_RIGHT_BRACE <none> (261) 5 9 18 19
+    TM_LEFT_PAREN <none> (262) 20 21 22 23 26 28 29 30 33 34 35
+    TM_RIGHT_PAREN <none> (263) 20 21 22 23 26 28 29 30 33 34 35
+    TM_SEMICOL <none> (264) 17
+    TM_MALLOC <none> (265) 30
+    TM_RI <none> (266) 28
+    TM_RC <none> (267) 29
+    TM_WI <none> (268) 20
+    TM_WC <none> (269) 21
+    TM_VAR <none> (270) 14
+    TM_IF <none> (271) 18
+    TM_THEN <none> (272) 18
+    TM_ELSE <none> (273) 18
+    TM_WHILE <none> (274) 19
+    TM_DO <none> (275) 19
+    TM_ASGNOP <none> (276) 3 5 7 9 10 11 15 16
+    TM_OR <none> (277) 51
+    TM_AND <none> (278) 50
+    TM_NOT <none> (279) 31
+    TM_LT <none> (280) 44
+    TM_LE <none> (281) 46
+    TM_GT <none> (282) 45
+    TM_GE <none> (283) 47
+    TM_EQ <none> (284) 48
+    TM_NE <none> (285) 49
+    TM_PLUS <none> (286) 40
+    TM_MINUS <none> (287) 32 41
+    TM_MUL <none> (288) 37 39
+    TM_DIV <none> (289) 42
+    TM_MOD <none> (290) 43
+    TM_LEN <none> (291) 33 34
+    TM_RS <none> (292) 35
+    TM_WS <none> (293) 22 23
+    TM_LSB <none> (294) 4 5 8 9 10 11 36
+    TM_RSB <none> (295) 4 5 8 9 10 11 36
+    TM_COMMA <none> (296) 6 7 8 9 11 13
+    TM_SL <sl> (297) 10 11 16 23 33
+    TM_CL <cl> (298) 25
 
 
 Nonterminals, with rules where they appear
 
-    $accept (36)
+    $accept (44)
         on left: 0
-    NT_WHOLE <c> (37)
+    NT_WHOLE <c> (45)
         on left: 1
         on right: 0
-    NT_CMD <c> (38)
-        on left: 2 3 4 5 6 7 8
-        on right: 1 4 5 6
-    NT_EXPR_2 <e> (39)
-        on left: 9 10 11 12 13 14 15 16 17
-        on right: 15 16 17 18
-    NT_EXPR <e> (40)
-        on left: 18 19 20 21 22 23 24 25 26 27 28 29 30 31
-        on right: 3 5 6 7 8 10 14 19 20 21 22 23 24 25 26 27 28 29 30 31
+    NT_DECL <d> (46)
+        on left: 2 3 4 5 6 7 8 9 10 11
+        on right: 6 7 8 9 11 14
+    NT_EXPR_LIST <el> (47)
+        on left: 12 13
+        on right: 5 9 13
+    NT_CMD <c> (48)
+        on left: 14 15 16 17 18 19 20 21 22 23
+        on right: 1 17 18 19
+    NT_EXPR_2 <e> (49)
+        on left: 24 25 26 27 28 29 30 31 32 33 34 35 36 37
+        on right: 38
+    NT_EXPR <e> (50)
+        on left: 38 39 40 41 42 43 44 45 46 47 48 49 50 51
+        on right: 3 4 5 7 8 9 10 11 12 13 15 16 18 19 20 21 22 26 30 31 32 34 36 37 39 40 41 42 43 44 45 46 47 48 49 50 51
 
 
 State 0
@@ -113,30 +149,37 @@ State 0
     TM_NOT         shift, and go to state 12
     TM_MINUS       shift, and go to state 13
     TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_WS          shift, and go to state 17
+    TM_CL          shift, and go to state 18
 
-    NT_WHOLE   go to state 15
-    NT_CMD     go to state 16
-    NT_EXPR_2  go to state 17
-    NT_EXPR    go to state 18
+    NT_WHOLE   go to state 19
+    NT_CMD     go to state 20
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 22
 
 
 State 1
 
-    9 NT_EXPR_2: TM_NAT •
+   24 NT_EXPR_2: TM_NAT •
 
-    $default  reduce using rule 9 (NT_EXPR_2)
+    $default  reduce using rule 24 (NT_EXPR_2)
 
 
 State 2
 
-   11 NT_EXPR_2: TM_IDENT •
+   27 NT_EXPR_2: TM_IDENT •
+   36          | TM_IDENT • TM_LSB NT_EXPR TM_RSB
 
-    $default  reduce using rule 11 (NT_EXPR_2)
+    TM_LSB  shift, and go to state 23
+
+    $default  reduce using rule 27 (NT_EXPR_2)
 
 
 State 3
 
-   10 NT_EXPR_2: TM_LEFT_PAREN • NT_EXPR TM_RIGHT_PAREN
+   26 NT_EXPR_2: TM_LEFT_PAREN • NT_EXPR TM_RIGHT_PAREN
 
     TM_NAT         shift, and go to state 1
     TM_IDENT       shift, and go to state 2
@@ -147,56 +190,61 @@ State 3
     TM_NOT         shift, and go to state 12
     TM_MINUS       shift, and go to state 13
     TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
 
-    NT_EXPR_2  go to state 17
-    NT_EXPR    go to state 19
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 24
 
 
 State 4
 
-   14 NT_EXPR_2: TM_MALLOC • TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
+   30 NT_EXPR_2: TM_MALLOC • TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
 
-    TM_LEFT_PAREN  shift, and go to state 20
+    TM_LEFT_PAREN  shift, and go to state 25
 
 
 State 5
 
-   12 NT_EXPR_2: TM_RI • TM_LEFT_PAREN TM_RIGHT_PAREN
+   28 NT_EXPR_2: TM_RI • TM_LEFT_PAREN TM_RIGHT_PAREN
 
-    TM_LEFT_PAREN  shift, and go to state 21
+    TM_LEFT_PAREN  shift, and go to state 26
 
 
 State 6
 
-   13 NT_EXPR_2: TM_RC • TM_LEFT_PAREN TM_RIGHT_PAREN
+   29 NT_EXPR_2: TM_RC • TM_LEFT_PAREN TM_RIGHT_PAREN
 
-    TM_LEFT_PAREN  shift, and go to state 22
+    TM_LEFT_PAREN  shift, and go to state 27
 
 
 State 7
 
-    7 NT_CMD: TM_WI • TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
+   20 NT_CMD: TM_WI • TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
 
-    TM_LEFT_PAREN  shift, and go to state 23
+    TM_LEFT_PAREN  shift, and go to state 28
 
 
 State 8
 
-    8 NT_CMD: TM_WC • TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
+   21 NT_CMD: TM_WC • TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
 
-    TM_LEFT_PAREN  shift, and go to state 24
+    TM_LEFT_PAREN  shift, and go to state 29
 
 
 State 9
 
-    2 NT_CMD: TM_VAR • TM_IDENT
+   14 NT_CMD: TM_VAR • NT_DECL
 
-    TM_IDENT  shift, and go to state 25
+    TM_IDENT  shift, and go to state 30
+
+    NT_DECL  go to state 31
 
 
 State 10
 
-    5 NT_CMD: TM_IF • NT_EXPR TM_THEN TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE TM_ELSE TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
+   18 NT_CMD: TM_IF • NT_EXPR TM_THEN TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE TM_ELSE TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
 
     TM_NAT         shift, and go to state 1
     TM_IDENT       shift, and go to state 2
@@ -207,14 +255,17 @@ State 10
     TM_NOT         shift, and go to state 12
     TM_MINUS       shift, and go to state 13
     TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
 
-    NT_EXPR_2  go to state 17
-    NT_EXPR    go to state 26
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 32
 
 
 State 11
 
-    6 NT_CMD: TM_WHILE • NT_EXPR TM_DO TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
+   19 NT_CMD: TM_WHILE • NT_EXPR TM_DO TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
 
     TM_NAT         shift, and go to state 1
     TM_IDENT       shift, and go to state 2
@@ -225,14 +276,17 @@ State 11
     TM_NOT         shift, and go to state 12
     TM_MINUS       shift, and go to state 13
     TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
 
-    NT_EXPR_2  go to state 17
-    NT_EXPR    go to state 27
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 33
 
 
 State 12
 
-   15 NT_EXPR_2: TM_NOT • NT_EXPR_2
+   31 NT_EXPR_2: TM_NOT • NT_EXPR
 
     TM_NAT         shift, and go to state 1
     TM_IDENT       shift, and go to state 2
@@ -243,13 +297,17 @@ State 12
     TM_NOT         shift, and go to state 12
     TM_MINUS       shift, and go to state 13
     TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
 
-    NT_EXPR_2  go to state 28
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 34
 
 
 State 13
 
-   16 NT_EXPR_2: TM_MINUS • NT_EXPR_2
+   32 NT_EXPR_2: TM_MINUS • NT_EXPR
 
     TM_NAT         shift, and go to state 1
     TM_IDENT       shift, and go to state 2
@@ -260,13 +318,17 @@ State 13
     TM_NOT         shift, and go to state 12
     TM_MINUS       shift, and go to state 13
     TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
 
-    NT_EXPR_2  go to state 29
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 35
 
 
 State 14
 
-   17 NT_EXPR_2: TM_MUL • NT_EXPR_2
+   37 NT_EXPR_2: TM_MUL • NT_EXPR
 
     TM_NAT         shift, and go to state 1
     TM_IDENT       shift, and go to state 2
@@ -277,135 +339,105 @@ State 14
     TM_NOT         shift, and go to state 12
     TM_MINUS       shift, and go to state 13
     TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
 
-    NT_EXPR_2  go to state 30
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 36
 
 
 State 15
 
-    0 $accept: NT_WHOLE • $end
+   33 NT_EXPR_2: TM_LEN • TM_LEFT_PAREN TM_SL TM_RIGHT_PAREN
+   34          | TM_LEN • TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
 
-    $end  shift, and go to state 31
+    TM_LEFT_PAREN  shift, and go to state 37
 
 
 State 16
 
-    1 NT_WHOLE: NT_CMD •
-    4 NT_CMD: NT_CMD • TM_SEMICOL NT_CMD
+   35 NT_EXPR_2: TM_RS • TM_LEFT_PAREN TM_RIGHT_PAREN
 
-    TM_SEMICOL  shift, and go to state 32
-
-    $default  reduce using rule 1 (NT_WHOLE)
+    TM_LEFT_PAREN  shift, and go to state 38
 
 
 State 17
 
-   18 NT_EXPR: NT_EXPR_2 •
+   22 NT_CMD: TM_WS • TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN
+   23       | TM_WS • TM_LEFT_PAREN TM_SL TM_RIGHT_PAREN
 
-    $default  reduce using rule 18 (NT_EXPR)
+    TM_LEFT_PAREN  shift, and go to state 39
 
 
 State 18
 
-    3 NT_CMD: NT_EXPR • TM_ASGNOP NT_EXPR
-   19 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
-   20        | NT_EXPR • TM_PLUS NT_EXPR
-   21        | NT_EXPR • TM_MINUS NT_EXPR
-   22        | NT_EXPR • TM_DIV NT_EXPR
-   23        | NT_EXPR • TM_MOD NT_EXPR
-   24        | NT_EXPR • TM_LT NT_EXPR
-   25        | NT_EXPR • TM_GT NT_EXPR
-   26        | NT_EXPR • TM_LE NT_EXPR
-   27        | NT_EXPR • TM_GE NT_EXPR
-   28        | NT_EXPR • TM_EQ NT_EXPR
-   29        | NT_EXPR • TM_NE NT_EXPR
-   30        | NT_EXPR • TM_AND NT_EXPR
-   31        | NT_EXPR • TM_OR NT_EXPR
+   25 NT_EXPR_2: TM_CL •
 
-    TM_ASGNOP  shift, and go to state 33
-    TM_OR      shift, and go to state 34
-    TM_AND     shift, and go to state 35
-    TM_LT      shift, and go to state 36
-    TM_LE      shift, and go to state 37
-    TM_GT      shift, and go to state 38
-    TM_GE      shift, and go to state 39
-    TM_EQ      shift, and go to state 40
-    TM_NE      shift, and go to state 41
-    TM_PLUS    shift, and go to state 42
-    TM_MINUS   shift, and go to state 43
-    TM_MUL     shift, and go to state 44
-    TM_DIV     shift, and go to state 45
-    TM_MOD     shift, and go to state 46
+    $default  reduce using rule 25 (NT_EXPR_2)
 
 
 State 19
 
-   10 NT_EXPR_2: TM_LEFT_PAREN NT_EXPR • TM_RIGHT_PAREN
-   19 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
-   20        | NT_EXPR • TM_PLUS NT_EXPR
-   21        | NT_EXPR • TM_MINUS NT_EXPR
-   22        | NT_EXPR • TM_DIV NT_EXPR
-   23        | NT_EXPR • TM_MOD NT_EXPR
-   24        | NT_EXPR • TM_LT NT_EXPR
-   25        | NT_EXPR • TM_GT NT_EXPR
-   26        | NT_EXPR • TM_LE NT_EXPR
-   27        | NT_EXPR • TM_GE NT_EXPR
-   28        | NT_EXPR • TM_EQ NT_EXPR
-   29        | NT_EXPR • TM_NE NT_EXPR
-   30        | NT_EXPR • TM_AND NT_EXPR
-   31        | NT_EXPR • TM_OR NT_EXPR
+    0 $accept: NT_WHOLE • $end
 
-    TM_RIGHT_PAREN  shift, and go to state 47
-    TM_OR           shift, and go to state 34
-    TM_AND          shift, and go to state 35
-    TM_LT           shift, and go to state 36
-    TM_LE           shift, and go to state 37
-    TM_GT           shift, and go to state 38
-    TM_GE           shift, and go to state 39
-    TM_EQ           shift, and go to state 40
-    TM_NE           shift, and go to state 41
-    TM_PLUS         shift, and go to state 42
-    TM_MINUS        shift, and go to state 43
-    TM_MUL          shift, and go to state 44
-    TM_DIV          shift, and go to state 45
-    TM_MOD          shift, and go to state 46
+    $end  shift, and go to state 40
 
 
 State 20
 
-   14 NT_EXPR_2: TM_MALLOC TM_LEFT_PAREN • NT_EXPR TM_RIGHT_PAREN
+    1 NT_WHOLE: NT_CMD •
+   17 NT_CMD: NT_CMD • TM_SEMICOL NT_CMD
 
-    TM_NAT         shift, and go to state 1
-    TM_IDENT       shift, and go to state 2
-    TM_LEFT_PAREN  shift, and go to state 3
-    TM_MALLOC      shift, and go to state 4
-    TM_RI          shift, and go to state 5
-    TM_RC          shift, and go to state 6
-    TM_NOT         shift, and go to state 12
-    TM_MINUS       shift, and go to state 13
-    TM_MUL         shift, and go to state 14
+    TM_SEMICOL  shift, and go to state 41
 
-    NT_EXPR_2  go to state 17
-    NT_EXPR    go to state 48
+    $default  reduce using rule 1 (NT_WHOLE)
 
 
 State 21
 
-   12 NT_EXPR_2: TM_RI TM_LEFT_PAREN • TM_RIGHT_PAREN
+   38 NT_EXPR: NT_EXPR_2 •
 
-    TM_RIGHT_PAREN  shift, and go to state 49
+    $default  reduce using rule 38 (NT_EXPR)
 
 
 State 22
 
-   13 NT_EXPR_2: TM_RC TM_LEFT_PAREN • TM_RIGHT_PAREN
+   15 NT_CMD: NT_EXPR • TM_ASGNOP NT_EXPR
+   16       | NT_EXPR • TM_ASGNOP TM_SL
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
 
-    TM_RIGHT_PAREN  shift, and go to state 50
+    TM_ASGNOP  shift, and go to state 42
+    TM_OR      shift, and go to state 43
+    TM_AND     shift, and go to state 44
+    TM_LT      shift, and go to state 45
+    TM_LE      shift, and go to state 46
+    TM_GT      shift, and go to state 47
+    TM_GE      shift, and go to state 48
+    TM_EQ      shift, and go to state 49
+    TM_NE      shift, and go to state 50
+    TM_PLUS    shift, and go to state 51
+    TM_MINUS   shift, and go to state 52
+    TM_MUL     shift, and go to state 53
+    TM_DIV     shift, and go to state 54
+    TM_MOD     shift, and go to state 55
 
 
 State 23
 
-    7 NT_CMD: TM_WI TM_LEFT_PAREN • NT_EXPR TM_RIGHT_PAREN
+   36 NT_EXPR_2: TM_IDENT TM_LSB • NT_EXPR TM_RSB
 
     TM_NAT         shift, and go to state 1
     TM_IDENT       shift, and go to state 2
@@ -416,14 +448,50 @@ State 23
     TM_NOT         shift, and go to state 12
     TM_MINUS       shift, and go to state 13
     TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
 
-    NT_EXPR_2  go to state 17
-    NT_EXPR    go to state 51
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 56
 
 
 State 24
 
-    8 NT_CMD: TM_WC TM_LEFT_PAREN • NT_EXPR TM_RIGHT_PAREN
+   26 NT_EXPR_2: TM_LEFT_PAREN NT_EXPR • TM_RIGHT_PAREN
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
+
+    TM_RIGHT_PAREN  shift, and go to state 57
+    TM_OR           shift, and go to state 43
+    TM_AND          shift, and go to state 44
+    TM_LT           shift, and go to state 45
+    TM_LE           shift, and go to state 46
+    TM_GT           shift, and go to state 47
+    TM_GE           shift, and go to state 48
+    TM_EQ           shift, and go to state 49
+    TM_NE           shift, and go to state 50
+    TM_PLUS         shift, and go to state 51
+    TM_MINUS        shift, and go to state 52
+    TM_MUL          shift, and go to state 53
+    TM_DIV          shift, and go to state 54
+    TM_MOD          shift, and go to state 55
+
+
+State 25
+
+   30 NT_EXPR_2: TM_MALLOC TM_LEFT_PAREN • NT_EXPR TM_RIGHT_PAREN
 
     TM_NAT         shift, and go to state 1
     TM_IDENT       shift, and go to state 2
@@ -434,115 +502,304 @@ State 24
     TM_NOT         shift, and go to state 12
     TM_MINUS       shift, and go to state 13
     TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
 
-    NT_EXPR_2  go to state 17
-    NT_EXPR    go to state 52
-
-
-State 25
-
-    2 NT_CMD: TM_VAR TM_IDENT •
-
-    $default  reduce using rule 2 (NT_CMD)
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 58
 
 
 State 26
 
-    5 NT_CMD: TM_IF NT_EXPR • TM_THEN TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE TM_ELSE TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
-   19 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
-   20        | NT_EXPR • TM_PLUS NT_EXPR
-   21        | NT_EXPR • TM_MINUS NT_EXPR
-   22        | NT_EXPR • TM_DIV NT_EXPR
-   23        | NT_EXPR • TM_MOD NT_EXPR
-   24        | NT_EXPR • TM_LT NT_EXPR
-   25        | NT_EXPR • TM_GT NT_EXPR
-   26        | NT_EXPR • TM_LE NT_EXPR
-   27        | NT_EXPR • TM_GE NT_EXPR
-   28        | NT_EXPR • TM_EQ NT_EXPR
-   29        | NT_EXPR • TM_NE NT_EXPR
-   30        | NT_EXPR • TM_AND NT_EXPR
-   31        | NT_EXPR • TM_OR NT_EXPR
+   28 NT_EXPR_2: TM_RI TM_LEFT_PAREN • TM_RIGHT_PAREN
 
-    TM_THEN   shift, and go to state 53
-    TM_OR     shift, and go to state 34
-    TM_AND    shift, and go to state 35
-    TM_LT     shift, and go to state 36
-    TM_LE     shift, and go to state 37
-    TM_GT     shift, and go to state 38
-    TM_GE     shift, and go to state 39
-    TM_EQ     shift, and go to state 40
-    TM_NE     shift, and go to state 41
-    TM_PLUS   shift, and go to state 42
-    TM_MINUS  shift, and go to state 43
-    TM_MUL    shift, and go to state 44
-    TM_DIV    shift, and go to state 45
-    TM_MOD    shift, and go to state 46
+    TM_RIGHT_PAREN  shift, and go to state 59
 
 
 State 27
 
-    6 NT_CMD: TM_WHILE NT_EXPR • TM_DO TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
-   19 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
-   20        | NT_EXPR • TM_PLUS NT_EXPR
-   21        | NT_EXPR • TM_MINUS NT_EXPR
-   22        | NT_EXPR • TM_DIV NT_EXPR
-   23        | NT_EXPR • TM_MOD NT_EXPR
-   24        | NT_EXPR • TM_LT NT_EXPR
-   25        | NT_EXPR • TM_GT NT_EXPR
-   26        | NT_EXPR • TM_LE NT_EXPR
-   27        | NT_EXPR • TM_GE NT_EXPR
-   28        | NT_EXPR • TM_EQ NT_EXPR
-   29        | NT_EXPR • TM_NE NT_EXPR
-   30        | NT_EXPR • TM_AND NT_EXPR
-   31        | NT_EXPR • TM_OR NT_EXPR
+   29 NT_EXPR_2: TM_RC TM_LEFT_PAREN • TM_RIGHT_PAREN
 
-    TM_DO     shift, and go to state 54
-    TM_OR     shift, and go to state 34
-    TM_AND    shift, and go to state 35
-    TM_LT     shift, and go to state 36
-    TM_LE     shift, and go to state 37
-    TM_GT     shift, and go to state 38
-    TM_GE     shift, and go to state 39
-    TM_EQ     shift, and go to state 40
-    TM_NE     shift, and go to state 41
-    TM_PLUS   shift, and go to state 42
-    TM_MINUS  shift, and go to state 43
-    TM_MUL    shift, and go to state 44
-    TM_DIV    shift, and go to state 45
-    TM_MOD    shift, and go to state 46
+    TM_RIGHT_PAREN  shift, and go to state 60
 
 
 State 28
 
-   15 NT_EXPR_2: TM_NOT NT_EXPR_2 •
+   20 NT_CMD: TM_WI TM_LEFT_PAREN • NT_EXPR TM_RIGHT_PAREN
 
-    $default  reduce using rule 15 (NT_EXPR_2)
+    TM_NAT         shift, and go to state 1
+    TM_IDENT       shift, and go to state 2
+    TM_LEFT_PAREN  shift, and go to state 3
+    TM_MALLOC      shift, and go to state 4
+    TM_RI          shift, and go to state 5
+    TM_RC          shift, and go to state 6
+    TM_NOT         shift, and go to state 12
+    TM_MINUS       shift, and go to state 13
+    TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
+
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 61
 
 
 State 29
 
-   16 NT_EXPR_2: TM_MINUS NT_EXPR_2 •
+   21 NT_CMD: TM_WC TM_LEFT_PAREN • NT_EXPR TM_RIGHT_PAREN
 
-    $default  reduce using rule 16 (NT_EXPR_2)
+    TM_NAT         shift, and go to state 1
+    TM_IDENT       shift, and go to state 2
+    TM_LEFT_PAREN  shift, and go to state 3
+    TM_MALLOC      shift, and go to state 4
+    TM_RI          shift, and go to state 5
+    TM_RC          shift, and go to state 6
+    TM_NOT         shift, and go to state 12
+    TM_MINUS       shift, and go to state 13
+    TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
+
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 62
 
 
 State 30
 
-   17 NT_EXPR_2: TM_MUL NT_EXPR_2 •
+    2 NT_DECL: TM_IDENT •
+    3        | TM_IDENT • TM_ASGNOP NT_EXPR
+    4        | TM_IDENT • TM_LSB NT_EXPR TM_RSB
+    5        | TM_IDENT • TM_LSB NT_EXPR TM_RSB TM_ASGNOP TM_LEFT_BRACE NT_EXPR_LIST TM_RIGHT_BRACE
+    6        | TM_IDENT • TM_COMMA NT_DECL
+    7        | TM_IDENT • TM_ASGNOP NT_EXPR TM_COMMA NT_DECL
+    8        | TM_IDENT • TM_LSB NT_EXPR TM_RSB TM_COMMA NT_DECL
+    9        | TM_IDENT • TM_LSB NT_EXPR TM_RSB TM_ASGNOP TM_LEFT_BRACE NT_EXPR_LIST TM_RIGHT_BRACE TM_COMMA NT_DECL
+   10        | TM_IDENT • TM_LSB NT_EXPR TM_RSB TM_ASGNOP TM_SL
+   11        | TM_IDENT • TM_LSB NT_EXPR TM_RSB TM_ASGNOP TM_SL TM_COMMA NT_DECL
 
-    $default  reduce using rule 17 (NT_EXPR_2)
+    TM_ASGNOP  shift, and go to state 63
+    TM_LSB     shift, and go to state 64
+    TM_COMMA   shift, and go to state 65
+
+    $default  reduce using rule 2 (NT_DECL)
 
 
 State 31
+
+   14 NT_CMD: TM_VAR NT_DECL •
+
+    $default  reduce using rule 14 (NT_CMD)
+
+
+State 32
+
+   18 NT_CMD: TM_IF NT_EXPR • TM_THEN TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE TM_ELSE TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
+
+    TM_THEN   shift, and go to state 66
+    TM_OR     shift, and go to state 43
+    TM_AND    shift, and go to state 44
+    TM_LT     shift, and go to state 45
+    TM_LE     shift, and go to state 46
+    TM_GT     shift, and go to state 47
+    TM_GE     shift, and go to state 48
+    TM_EQ     shift, and go to state 49
+    TM_NE     shift, and go to state 50
+    TM_PLUS   shift, and go to state 51
+    TM_MINUS  shift, and go to state 52
+    TM_MUL    shift, and go to state 53
+    TM_DIV    shift, and go to state 54
+    TM_MOD    shift, and go to state 55
+
+
+State 33
+
+   19 NT_CMD: TM_WHILE NT_EXPR • TM_DO TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
+
+    TM_DO     shift, and go to state 67
+    TM_OR     shift, and go to state 43
+    TM_AND    shift, and go to state 44
+    TM_LT     shift, and go to state 45
+    TM_LE     shift, and go to state 46
+    TM_GT     shift, and go to state 47
+    TM_GE     shift, and go to state 48
+    TM_EQ     shift, and go to state 49
+    TM_NE     shift, and go to state 50
+    TM_PLUS   shift, and go to state 51
+    TM_MINUS  shift, and go to state 52
+    TM_MUL    shift, and go to state 53
+    TM_DIV    shift, and go to state 54
+    TM_MOD    shift, and go to state 55
+
+
+State 34
+
+   31 NT_EXPR_2: TM_NOT NT_EXPR •
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
+
+    TM_OR     shift, and go to state 43
+    TM_AND    shift, and go to state 44
+    TM_LT     shift, and go to state 45
+    TM_LE     shift, and go to state 46
+    TM_GT     shift, and go to state 47
+    TM_GE     shift, and go to state 48
+    TM_EQ     shift, and go to state 49
+    TM_NE     shift, and go to state 50
+    TM_PLUS   shift, and go to state 51
+    TM_MINUS  shift, and go to state 52
+    TM_MUL    shift, and go to state 53
+    TM_DIV    shift, and go to state 54
+    TM_MOD    shift, and go to state 55
+
+    $default  reduce using rule 31 (NT_EXPR_2)
+
+
+State 35
+
+   32 NT_EXPR_2: TM_MINUS NT_EXPR •
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
+
+    TM_MUL  shift, and go to state 53
+    TM_DIV  shift, and go to state 54
+    TM_MOD  shift, and go to state 55
+
+    $default  reduce using rule 32 (NT_EXPR_2)
+
+
+State 36
+
+   37 NT_EXPR_2: TM_MUL NT_EXPR •
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
+
+    $default  reduce using rule 37 (NT_EXPR_2)
+
+
+State 37
+
+   33 NT_EXPR_2: TM_LEN TM_LEFT_PAREN • TM_SL TM_RIGHT_PAREN
+   34          | TM_LEN TM_LEFT_PAREN • NT_EXPR TM_RIGHT_PAREN
+
+    TM_NAT         shift, and go to state 1
+    TM_IDENT       shift, and go to state 2
+    TM_LEFT_PAREN  shift, and go to state 3
+    TM_MALLOC      shift, and go to state 4
+    TM_RI          shift, and go to state 5
+    TM_RC          shift, and go to state 6
+    TM_NOT         shift, and go to state 12
+    TM_MINUS       shift, and go to state 13
+    TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_SL          shift, and go to state 68
+    TM_CL          shift, and go to state 18
+
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 69
+
+
+State 38
+
+   35 NT_EXPR_2: TM_RS TM_LEFT_PAREN • TM_RIGHT_PAREN
+
+    TM_RIGHT_PAREN  shift, and go to state 70
+
+
+State 39
+
+   22 NT_CMD: TM_WS TM_LEFT_PAREN • NT_EXPR TM_RIGHT_PAREN
+   23       | TM_WS TM_LEFT_PAREN • TM_SL TM_RIGHT_PAREN
+
+    TM_NAT         shift, and go to state 1
+    TM_IDENT       shift, and go to state 2
+    TM_LEFT_PAREN  shift, and go to state 3
+    TM_MALLOC      shift, and go to state 4
+    TM_RI          shift, and go to state 5
+    TM_RC          shift, and go to state 6
+    TM_NOT         shift, and go to state 12
+    TM_MINUS       shift, and go to state 13
+    TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_SL          shift, and go to state 71
+    TM_CL          shift, and go to state 18
+
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 72
+
+
+State 40
 
     0 $accept: NT_WHOLE $end •
 
     $default  accept
 
 
-State 32
+State 41
 
-    4 NT_CMD: NT_CMD TM_SEMICOL • NT_CMD
+   17 NT_CMD: NT_CMD TM_SEMICOL • NT_CMD
 
     TM_NAT         shift, and go to state 1
     TM_IDENT       shift, and go to state 2
@@ -558,177 +815,20 @@ State 32
     TM_NOT         shift, and go to state 12
     TM_MINUS       shift, and go to state 13
     TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_WS          shift, and go to state 17
+    TM_CL          shift, and go to state 18
 
-    NT_CMD     go to state 55
-    NT_EXPR_2  go to state 17
-    NT_EXPR    go to state 18
-
-
-State 33
-
-    3 NT_CMD: NT_EXPR TM_ASGNOP • NT_EXPR
-
-    TM_NAT         shift, and go to state 1
-    TM_IDENT       shift, and go to state 2
-    TM_LEFT_PAREN  shift, and go to state 3
-    TM_MALLOC      shift, and go to state 4
-    TM_RI          shift, and go to state 5
-    TM_RC          shift, and go to state 6
-    TM_NOT         shift, and go to state 12
-    TM_MINUS       shift, and go to state 13
-    TM_MUL         shift, and go to state 14
-
-    NT_EXPR_2  go to state 17
-    NT_EXPR    go to state 56
-
-
-State 34
-
-   31 NT_EXPR: NT_EXPR TM_OR • NT_EXPR
-
-    TM_NAT         shift, and go to state 1
-    TM_IDENT       shift, and go to state 2
-    TM_LEFT_PAREN  shift, and go to state 3
-    TM_MALLOC      shift, and go to state 4
-    TM_RI          shift, and go to state 5
-    TM_RC          shift, and go to state 6
-    TM_NOT         shift, and go to state 12
-    TM_MINUS       shift, and go to state 13
-    TM_MUL         shift, and go to state 14
-
-    NT_EXPR_2  go to state 17
-    NT_EXPR    go to state 57
-
-
-State 35
-
-   30 NT_EXPR: NT_EXPR TM_AND • NT_EXPR
-
-    TM_NAT         shift, and go to state 1
-    TM_IDENT       shift, and go to state 2
-    TM_LEFT_PAREN  shift, and go to state 3
-    TM_MALLOC      shift, and go to state 4
-    TM_RI          shift, and go to state 5
-    TM_RC          shift, and go to state 6
-    TM_NOT         shift, and go to state 12
-    TM_MINUS       shift, and go to state 13
-    TM_MUL         shift, and go to state 14
-
-    NT_EXPR_2  go to state 17
-    NT_EXPR    go to state 58
-
-
-State 36
-
-   24 NT_EXPR: NT_EXPR TM_LT • NT_EXPR
-
-    TM_NAT         shift, and go to state 1
-    TM_IDENT       shift, and go to state 2
-    TM_LEFT_PAREN  shift, and go to state 3
-    TM_MALLOC      shift, and go to state 4
-    TM_RI          shift, and go to state 5
-    TM_RC          shift, and go to state 6
-    TM_NOT         shift, and go to state 12
-    TM_MINUS       shift, and go to state 13
-    TM_MUL         shift, and go to state 14
-
-    NT_EXPR_2  go to state 17
-    NT_EXPR    go to state 59
-
-
-State 37
-
-   26 NT_EXPR: NT_EXPR TM_LE • NT_EXPR
-
-    TM_NAT         shift, and go to state 1
-    TM_IDENT       shift, and go to state 2
-    TM_LEFT_PAREN  shift, and go to state 3
-    TM_MALLOC      shift, and go to state 4
-    TM_RI          shift, and go to state 5
-    TM_RC          shift, and go to state 6
-    TM_NOT         shift, and go to state 12
-    TM_MINUS       shift, and go to state 13
-    TM_MUL         shift, and go to state 14
-
-    NT_EXPR_2  go to state 17
-    NT_EXPR    go to state 60
-
-
-State 38
-
-   25 NT_EXPR: NT_EXPR TM_GT • NT_EXPR
-
-    TM_NAT         shift, and go to state 1
-    TM_IDENT       shift, and go to state 2
-    TM_LEFT_PAREN  shift, and go to state 3
-    TM_MALLOC      shift, and go to state 4
-    TM_RI          shift, and go to state 5
-    TM_RC          shift, and go to state 6
-    TM_NOT         shift, and go to state 12
-    TM_MINUS       shift, and go to state 13
-    TM_MUL         shift, and go to state 14
-
-    NT_EXPR_2  go to state 17
-    NT_EXPR    go to state 61
-
-
-State 39
-
-   27 NT_EXPR: NT_EXPR TM_GE • NT_EXPR
-
-    TM_NAT         shift, and go to state 1
-    TM_IDENT       shift, and go to state 2
-    TM_LEFT_PAREN  shift, and go to state 3
-    TM_MALLOC      shift, and go to state 4
-    TM_RI          shift, and go to state 5
-    TM_RC          shift, and go to state 6
-    TM_NOT         shift, and go to state 12
-    TM_MINUS       shift, and go to state 13
-    TM_MUL         shift, and go to state 14
-
-    NT_EXPR_2  go to state 17
-    NT_EXPR    go to state 62
-
-
-State 40
-
-   28 NT_EXPR: NT_EXPR TM_EQ • NT_EXPR
-
-    TM_NAT         shift, and go to state 1
-    TM_IDENT       shift, and go to state 2
-    TM_LEFT_PAREN  shift, and go to state 3
-    TM_MALLOC      shift, and go to state 4
-    TM_RI          shift, and go to state 5
-    TM_RC          shift, and go to state 6
-    TM_NOT         shift, and go to state 12
-    TM_MINUS       shift, and go to state 13
-    TM_MUL         shift, and go to state 14
-
-    NT_EXPR_2  go to state 17
-    NT_EXPR    go to state 63
-
-
-State 41
-
-   29 NT_EXPR: NT_EXPR TM_NE • NT_EXPR
-
-    TM_NAT         shift, and go to state 1
-    TM_IDENT       shift, and go to state 2
-    TM_LEFT_PAREN  shift, and go to state 3
-    TM_MALLOC      shift, and go to state 4
-    TM_RI          shift, and go to state 5
-    TM_RC          shift, and go to state 6
-    TM_NOT         shift, and go to state 12
-    TM_MINUS       shift, and go to state 13
-    TM_MUL         shift, and go to state 14
-
-    NT_EXPR_2  go to state 17
-    NT_EXPR    go to state 64
+    NT_CMD     go to state 73
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 22
 
 
 State 42
 
-   20 NT_EXPR: NT_EXPR TM_PLUS • NT_EXPR
+   15 NT_CMD: NT_EXPR TM_ASGNOP • NT_EXPR
+   16       | NT_EXPR TM_ASGNOP • TM_SL
 
     TM_NAT         shift, and go to state 1
     TM_IDENT       shift, and go to state 2
@@ -739,14 +839,18 @@ State 42
     TM_NOT         shift, and go to state 12
     TM_MINUS       shift, and go to state 13
     TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_SL          shift, and go to state 74
+    TM_CL          shift, and go to state 18
 
-    NT_EXPR_2  go to state 17
-    NT_EXPR    go to state 65
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 75
 
 
 State 43
 
-   21 NT_EXPR: NT_EXPR TM_MINUS • NT_EXPR
+   51 NT_EXPR: NT_EXPR TM_OR • NT_EXPR
 
     TM_NAT         shift, and go to state 1
     TM_IDENT       shift, and go to state 2
@@ -757,14 +861,17 @@ State 43
     TM_NOT         shift, and go to state 12
     TM_MINUS       shift, and go to state 13
     TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
 
-    NT_EXPR_2  go to state 17
-    NT_EXPR    go to state 66
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 76
 
 
 State 44
 
-   19 NT_EXPR: NT_EXPR TM_MUL • NT_EXPR
+   50 NT_EXPR: NT_EXPR TM_AND • NT_EXPR
 
     TM_NAT         shift, and go to state 1
     TM_IDENT       shift, and go to state 2
@@ -775,14 +882,17 @@ State 44
     TM_NOT         shift, and go to state 12
     TM_MINUS       shift, and go to state 13
     TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
 
-    NT_EXPR_2  go to state 17
-    NT_EXPR    go to state 67
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 77
 
 
 State 45
 
-   22 NT_EXPR: NT_EXPR TM_DIV • NT_EXPR
+   44 NT_EXPR: NT_EXPR TM_LT • NT_EXPR
 
     TM_NAT         shift, and go to state 1
     TM_IDENT       shift, and go to state 2
@@ -793,14 +903,17 @@ State 45
     TM_NOT         shift, and go to state 12
     TM_MINUS       shift, and go to state 13
     TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
 
-    NT_EXPR_2  go to state 17
-    NT_EXPR    go to state 68
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 78
 
 
 State 46
 
-   23 NT_EXPR: NT_EXPR TM_MOD • NT_EXPR
+   46 NT_EXPR: NT_EXPR TM_LE • NT_EXPR
 
     TM_NAT         shift, and go to state 1
     TM_IDENT       shift, and go to state 2
@@ -811,629 +924,1004 @@ State 46
     TM_NOT         shift, and go to state 12
     TM_MINUS       shift, and go to state 13
     TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
 
-    NT_EXPR_2  go to state 17
-    NT_EXPR    go to state 69
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 79
 
 
 State 47
 
-   10 NT_EXPR_2: TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN •
+   45 NT_EXPR: NT_EXPR TM_GT • NT_EXPR
 
-    $default  reduce using rule 10 (NT_EXPR_2)
+    TM_NAT         shift, and go to state 1
+    TM_IDENT       shift, and go to state 2
+    TM_LEFT_PAREN  shift, and go to state 3
+    TM_MALLOC      shift, and go to state 4
+    TM_RI          shift, and go to state 5
+    TM_RC          shift, and go to state 6
+    TM_NOT         shift, and go to state 12
+    TM_MINUS       shift, and go to state 13
+    TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
+
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 80
 
 
 State 48
 
-   14 NT_EXPR_2: TM_MALLOC TM_LEFT_PAREN NT_EXPR • TM_RIGHT_PAREN
-   19 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
-   20        | NT_EXPR • TM_PLUS NT_EXPR
-   21        | NT_EXPR • TM_MINUS NT_EXPR
-   22        | NT_EXPR • TM_DIV NT_EXPR
-   23        | NT_EXPR • TM_MOD NT_EXPR
-   24        | NT_EXPR • TM_LT NT_EXPR
-   25        | NT_EXPR • TM_GT NT_EXPR
-   26        | NT_EXPR • TM_LE NT_EXPR
-   27        | NT_EXPR • TM_GE NT_EXPR
-   28        | NT_EXPR • TM_EQ NT_EXPR
-   29        | NT_EXPR • TM_NE NT_EXPR
-   30        | NT_EXPR • TM_AND NT_EXPR
-   31        | NT_EXPR • TM_OR NT_EXPR
+   47 NT_EXPR: NT_EXPR TM_GE • NT_EXPR
 
-    TM_RIGHT_PAREN  shift, and go to state 70
-    TM_OR           shift, and go to state 34
-    TM_AND          shift, and go to state 35
-    TM_LT           shift, and go to state 36
-    TM_LE           shift, and go to state 37
-    TM_GT           shift, and go to state 38
-    TM_GE           shift, and go to state 39
-    TM_EQ           shift, and go to state 40
-    TM_NE           shift, and go to state 41
-    TM_PLUS         shift, and go to state 42
-    TM_MINUS        shift, and go to state 43
-    TM_MUL          shift, and go to state 44
-    TM_DIV          shift, and go to state 45
-    TM_MOD          shift, and go to state 46
+    TM_NAT         shift, and go to state 1
+    TM_IDENT       shift, and go to state 2
+    TM_LEFT_PAREN  shift, and go to state 3
+    TM_MALLOC      shift, and go to state 4
+    TM_RI          shift, and go to state 5
+    TM_RC          shift, and go to state 6
+    TM_NOT         shift, and go to state 12
+    TM_MINUS       shift, and go to state 13
+    TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
+
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 81
 
 
 State 49
 
-   12 NT_EXPR_2: TM_RI TM_LEFT_PAREN TM_RIGHT_PAREN •
+   48 NT_EXPR: NT_EXPR TM_EQ • NT_EXPR
 
-    $default  reduce using rule 12 (NT_EXPR_2)
+    TM_NAT         shift, and go to state 1
+    TM_IDENT       shift, and go to state 2
+    TM_LEFT_PAREN  shift, and go to state 3
+    TM_MALLOC      shift, and go to state 4
+    TM_RI          shift, and go to state 5
+    TM_RC          shift, and go to state 6
+    TM_NOT         shift, and go to state 12
+    TM_MINUS       shift, and go to state 13
+    TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
+
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 82
 
 
 State 50
 
-   13 NT_EXPR_2: TM_RC TM_LEFT_PAREN TM_RIGHT_PAREN •
+   49 NT_EXPR: NT_EXPR TM_NE • NT_EXPR
 
-    $default  reduce using rule 13 (NT_EXPR_2)
+    TM_NAT         shift, and go to state 1
+    TM_IDENT       shift, and go to state 2
+    TM_LEFT_PAREN  shift, and go to state 3
+    TM_MALLOC      shift, and go to state 4
+    TM_RI          shift, and go to state 5
+    TM_RC          shift, and go to state 6
+    TM_NOT         shift, and go to state 12
+    TM_MINUS       shift, and go to state 13
+    TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
+
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 83
 
 
 State 51
 
-    7 NT_CMD: TM_WI TM_LEFT_PAREN NT_EXPR • TM_RIGHT_PAREN
-   19 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
-   20        | NT_EXPR • TM_PLUS NT_EXPR
-   21        | NT_EXPR • TM_MINUS NT_EXPR
-   22        | NT_EXPR • TM_DIV NT_EXPR
-   23        | NT_EXPR • TM_MOD NT_EXPR
-   24        | NT_EXPR • TM_LT NT_EXPR
-   25        | NT_EXPR • TM_GT NT_EXPR
-   26        | NT_EXPR • TM_LE NT_EXPR
-   27        | NT_EXPR • TM_GE NT_EXPR
-   28        | NT_EXPR • TM_EQ NT_EXPR
-   29        | NT_EXPR • TM_NE NT_EXPR
-   30        | NT_EXPR • TM_AND NT_EXPR
-   31        | NT_EXPR • TM_OR NT_EXPR
+   40 NT_EXPR: NT_EXPR TM_PLUS • NT_EXPR
 
-    TM_RIGHT_PAREN  shift, and go to state 71
-    TM_OR           shift, and go to state 34
-    TM_AND          shift, and go to state 35
-    TM_LT           shift, and go to state 36
-    TM_LE           shift, and go to state 37
-    TM_GT           shift, and go to state 38
-    TM_GE           shift, and go to state 39
-    TM_EQ           shift, and go to state 40
-    TM_NE           shift, and go to state 41
-    TM_PLUS         shift, and go to state 42
-    TM_MINUS        shift, and go to state 43
-    TM_MUL          shift, and go to state 44
-    TM_DIV          shift, and go to state 45
-    TM_MOD          shift, and go to state 46
+    TM_NAT         shift, and go to state 1
+    TM_IDENT       shift, and go to state 2
+    TM_LEFT_PAREN  shift, and go to state 3
+    TM_MALLOC      shift, and go to state 4
+    TM_RI          shift, and go to state 5
+    TM_RC          shift, and go to state 6
+    TM_NOT         shift, and go to state 12
+    TM_MINUS       shift, and go to state 13
+    TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
+
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 84
 
 
 State 52
 
-    8 NT_CMD: TM_WC TM_LEFT_PAREN NT_EXPR • TM_RIGHT_PAREN
-   19 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
-   20        | NT_EXPR • TM_PLUS NT_EXPR
-   21        | NT_EXPR • TM_MINUS NT_EXPR
-   22        | NT_EXPR • TM_DIV NT_EXPR
-   23        | NT_EXPR • TM_MOD NT_EXPR
-   24        | NT_EXPR • TM_LT NT_EXPR
-   25        | NT_EXPR • TM_GT NT_EXPR
-   26        | NT_EXPR • TM_LE NT_EXPR
-   27        | NT_EXPR • TM_GE NT_EXPR
-   28        | NT_EXPR • TM_EQ NT_EXPR
-   29        | NT_EXPR • TM_NE NT_EXPR
-   30        | NT_EXPR • TM_AND NT_EXPR
-   31        | NT_EXPR • TM_OR NT_EXPR
+   41 NT_EXPR: NT_EXPR TM_MINUS • NT_EXPR
 
-    TM_RIGHT_PAREN  shift, and go to state 72
-    TM_OR           shift, and go to state 34
-    TM_AND          shift, and go to state 35
-    TM_LT           shift, and go to state 36
-    TM_LE           shift, and go to state 37
-    TM_GT           shift, and go to state 38
-    TM_GE           shift, and go to state 39
-    TM_EQ           shift, and go to state 40
-    TM_NE           shift, and go to state 41
-    TM_PLUS         shift, and go to state 42
-    TM_MINUS        shift, and go to state 43
-    TM_MUL          shift, and go to state 44
-    TM_DIV          shift, and go to state 45
-    TM_MOD          shift, and go to state 46
+    TM_NAT         shift, and go to state 1
+    TM_IDENT       shift, and go to state 2
+    TM_LEFT_PAREN  shift, and go to state 3
+    TM_MALLOC      shift, and go to state 4
+    TM_RI          shift, and go to state 5
+    TM_RC          shift, and go to state 6
+    TM_NOT         shift, and go to state 12
+    TM_MINUS       shift, and go to state 13
+    TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
+
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 85
 
 
 State 53
 
-    5 NT_CMD: TM_IF NT_EXPR TM_THEN • TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE TM_ELSE TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
+   39 NT_EXPR: NT_EXPR TM_MUL • NT_EXPR
 
-    TM_LEFT_BRACE  shift, and go to state 73
+    TM_NAT         shift, and go to state 1
+    TM_IDENT       shift, and go to state 2
+    TM_LEFT_PAREN  shift, and go to state 3
+    TM_MALLOC      shift, and go to state 4
+    TM_RI          shift, and go to state 5
+    TM_RC          shift, and go to state 6
+    TM_NOT         shift, and go to state 12
+    TM_MINUS       shift, and go to state 13
+    TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
+
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 86
 
 
 State 54
 
-    6 NT_CMD: TM_WHILE NT_EXPR TM_DO • TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
+   42 NT_EXPR: NT_EXPR TM_DIV • NT_EXPR
 
-    TM_LEFT_BRACE  shift, and go to state 74
+    TM_NAT         shift, and go to state 1
+    TM_IDENT       shift, and go to state 2
+    TM_LEFT_PAREN  shift, and go to state 3
+    TM_MALLOC      shift, and go to state 4
+    TM_RI          shift, and go to state 5
+    TM_RC          shift, and go to state 6
+    TM_NOT         shift, and go to state 12
+    TM_MINUS       shift, and go to state 13
+    TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
+
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 87
 
 
 State 55
 
-    4 NT_CMD: NT_CMD • TM_SEMICOL NT_CMD
-    4       | NT_CMD TM_SEMICOL NT_CMD •
+   43 NT_EXPR: NT_EXPR TM_MOD • NT_EXPR
 
-    TM_SEMICOL  shift, and go to state 32
+    TM_NAT         shift, and go to state 1
+    TM_IDENT       shift, and go to state 2
+    TM_LEFT_PAREN  shift, and go to state 3
+    TM_MALLOC      shift, and go to state 4
+    TM_RI          shift, and go to state 5
+    TM_RC          shift, and go to state 6
+    TM_NOT         shift, and go to state 12
+    TM_MINUS       shift, and go to state 13
+    TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
 
-    $default  reduce using rule 4 (NT_CMD)
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 88
 
 
 State 56
 
-    3 NT_CMD: NT_EXPR TM_ASGNOP NT_EXPR •
-   19 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
-   20        | NT_EXPR • TM_PLUS NT_EXPR
-   21        | NT_EXPR • TM_MINUS NT_EXPR
-   22        | NT_EXPR • TM_DIV NT_EXPR
-   23        | NT_EXPR • TM_MOD NT_EXPR
-   24        | NT_EXPR • TM_LT NT_EXPR
-   25        | NT_EXPR • TM_GT NT_EXPR
-   26        | NT_EXPR • TM_LE NT_EXPR
-   27        | NT_EXPR • TM_GE NT_EXPR
-   28        | NT_EXPR • TM_EQ NT_EXPR
-   29        | NT_EXPR • TM_NE NT_EXPR
-   30        | NT_EXPR • TM_AND NT_EXPR
-   31        | NT_EXPR • TM_OR NT_EXPR
+   36 NT_EXPR_2: TM_IDENT TM_LSB NT_EXPR • TM_RSB
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
 
-    TM_OR     shift, and go to state 34
-    TM_AND    shift, and go to state 35
-    TM_LT     shift, and go to state 36
-    TM_LE     shift, and go to state 37
-    TM_GT     shift, and go to state 38
-    TM_GE     shift, and go to state 39
-    TM_EQ     shift, and go to state 40
-    TM_NE     shift, and go to state 41
-    TM_PLUS   shift, and go to state 42
-    TM_MINUS  shift, and go to state 43
-    TM_MUL    shift, and go to state 44
-    TM_DIV    shift, and go to state 45
-    TM_MOD    shift, and go to state 46
-
-    $default  reduce using rule 3 (NT_CMD)
+    TM_OR     shift, and go to state 43
+    TM_AND    shift, and go to state 44
+    TM_LT     shift, and go to state 45
+    TM_LE     shift, and go to state 46
+    TM_GT     shift, and go to state 47
+    TM_GE     shift, and go to state 48
+    TM_EQ     shift, and go to state 49
+    TM_NE     shift, and go to state 50
+    TM_PLUS   shift, and go to state 51
+    TM_MINUS  shift, and go to state 52
+    TM_MUL    shift, and go to state 53
+    TM_DIV    shift, and go to state 54
+    TM_MOD    shift, and go to state 55
+    TM_RSB    shift, and go to state 89
 
 
 State 57
 
-   19 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
-   20        | NT_EXPR • TM_PLUS NT_EXPR
-   21        | NT_EXPR • TM_MINUS NT_EXPR
-   22        | NT_EXPR • TM_DIV NT_EXPR
-   23        | NT_EXPR • TM_MOD NT_EXPR
-   24        | NT_EXPR • TM_LT NT_EXPR
-   25        | NT_EXPR • TM_GT NT_EXPR
-   26        | NT_EXPR • TM_LE NT_EXPR
-   27        | NT_EXPR • TM_GE NT_EXPR
-   28        | NT_EXPR • TM_EQ NT_EXPR
-   29        | NT_EXPR • TM_NE NT_EXPR
-   30        | NT_EXPR • TM_AND NT_EXPR
-   31        | NT_EXPR • TM_OR NT_EXPR
-   31        | NT_EXPR TM_OR NT_EXPR •
+   26 NT_EXPR_2: TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN •
 
-    TM_AND    shift, and go to state 35
-    TM_LT     shift, and go to state 36
-    TM_LE     shift, and go to state 37
-    TM_GT     shift, and go to state 38
-    TM_GE     shift, and go to state 39
-    TM_EQ     shift, and go to state 40
-    TM_NE     shift, and go to state 41
-    TM_PLUS   shift, and go to state 42
-    TM_MINUS  shift, and go to state 43
-    TM_MUL    shift, and go to state 44
-    TM_DIV    shift, and go to state 45
-    TM_MOD    shift, and go to state 46
-
-    $default  reduce using rule 31 (NT_EXPR)
+    $default  reduce using rule 26 (NT_EXPR_2)
 
 
 State 58
 
-   19 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
-   20        | NT_EXPR • TM_PLUS NT_EXPR
-   21        | NT_EXPR • TM_MINUS NT_EXPR
-   22        | NT_EXPR • TM_DIV NT_EXPR
-   23        | NT_EXPR • TM_MOD NT_EXPR
-   24        | NT_EXPR • TM_LT NT_EXPR
-   25        | NT_EXPR • TM_GT NT_EXPR
-   26        | NT_EXPR • TM_LE NT_EXPR
-   27        | NT_EXPR • TM_GE NT_EXPR
-   28        | NT_EXPR • TM_EQ NT_EXPR
-   29        | NT_EXPR • TM_NE NT_EXPR
-   30        | NT_EXPR • TM_AND NT_EXPR
-   30        | NT_EXPR TM_AND NT_EXPR •
-   31        | NT_EXPR • TM_OR NT_EXPR
+   30 NT_EXPR_2: TM_MALLOC TM_LEFT_PAREN NT_EXPR • TM_RIGHT_PAREN
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
 
-    TM_LT     shift, and go to state 36
-    TM_LE     shift, and go to state 37
-    TM_GT     shift, and go to state 38
-    TM_GE     shift, and go to state 39
-    TM_EQ     shift, and go to state 40
-    TM_NE     shift, and go to state 41
-    TM_PLUS   shift, and go to state 42
-    TM_MINUS  shift, and go to state 43
-    TM_MUL    shift, and go to state 44
-    TM_DIV    shift, and go to state 45
-    TM_MOD    shift, and go to state 46
-
-    $default  reduce using rule 30 (NT_EXPR)
+    TM_RIGHT_PAREN  shift, and go to state 90
+    TM_OR           shift, and go to state 43
+    TM_AND          shift, and go to state 44
+    TM_LT           shift, and go to state 45
+    TM_LE           shift, and go to state 46
+    TM_GT           shift, and go to state 47
+    TM_GE           shift, and go to state 48
+    TM_EQ           shift, and go to state 49
+    TM_NE           shift, and go to state 50
+    TM_PLUS         shift, and go to state 51
+    TM_MINUS        shift, and go to state 52
+    TM_MUL          shift, and go to state 53
+    TM_DIV          shift, and go to state 54
+    TM_MOD          shift, and go to state 55
 
 
 State 59
 
-   19 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
-   20        | NT_EXPR • TM_PLUS NT_EXPR
-   21        | NT_EXPR • TM_MINUS NT_EXPR
-   22        | NT_EXPR • TM_DIV NT_EXPR
-   23        | NT_EXPR • TM_MOD NT_EXPR
-   24        | NT_EXPR • TM_LT NT_EXPR
-   24        | NT_EXPR TM_LT NT_EXPR •
-   25        | NT_EXPR • TM_GT NT_EXPR
-   26        | NT_EXPR • TM_LE NT_EXPR
-   27        | NT_EXPR • TM_GE NT_EXPR
-   28        | NT_EXPR • TM_EQ NT_EXPR
-   29        | NT_EXPR • TM_NE NT_EXPR
-   30        | NT_EXPR • TM_AND NT_EXPR
-   31        | NT_EXPR • TM_OR NT_EXPR
+   28 NT_EXPR_2: TM_RI TM_LEFT_PAREN TM_RIGHT_PAREN •
 
-    TM_PLUS   shift, and go to state 42
-    TM_MINUS  shift, and go to state 43
-    TM_MUL    shift, and go to state 44
-    TM_DIV    shift, and go to state 45
-    TM_MOD    shift, and go to state 46
-
-    $default  reduce using rule 24 (NT_EXPR)
+    $default  reduce using rule 28 (NT_EXPR_2)
 
 
 State 60
 
-   19 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
-   20        | NT_EXPR • TM_PLUS NT_EXPR
-   21        | NT_EXPR • TM_MINUS NT_EXPR
-   22        | NT_EXPR • TM_DIV NT_EXPR
-   23        | NT_EXPR • TM_MOD NT_EXPR
-   24        | NT_EXPR • TM_LT NT_EXPR
-   25        | NT_EXPR • TM_GT NT_EXPR
-   26        | NT_EXPR • TM_LE NT_EXPR
-   26        | NT_EXPR TM_LE NT_EXPR •
-   27        | NT_EXPR • TM_GE NT_EXPR
-   28        | NT_EXPR • TM_EQ NT_EXPR
-   29        | NT_EXPR • TM_NE NT_EXPR
-   30        | NT_EXPR • TM_AND NT_EXPR
-   31        | NT_EXPR • TM_OR NT_EXPR
+   29 NT_EXPR_2: TM_RC TM_LEFT_PAREN TM_RIGHT_PAREN •
 
-    TM_PLUS   shift, and go to state 42
-    TM_MINUS  shift, and go to state 43
-    TM_MUL    shift, and go to state 44
-    TM_DIV    shift, and go to state 45
-    TM_MOD    shift, and go to state 46
-
-    $default  reduce using rule 26 (NT_EXPR)
+    $default  reduce using rule 29 (NT_EXPR_2)
 
 
 State 61
 
-   19 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
-   20        | NT_EXPR • TM_PLUS NT_EXPR
-   21        | NT_EXPR • TM_MINUS NT_EXPR
-   22        | NT_EXPR • TM_DIV NT_EXPR
-   23        | NT_EXPR • TM_MOD NT_EXPR
-   24        | NT_EXPR • TM_LT NT_EXPR
-   25        | NT_EXPR • TM_GT NT_EXPR
-   25        | NT_EXPR TM_GT NT_EXPR •
-   26        | NT_EXPR • TM_LE NT_EXPR
-   27        | NT_EXPR • TM_GE NT_EXPR
-   28        | NT_EXPR • TM_EQ NT_EXPR
-   29        | NT_EXPR • TM_NE NT_EXPR
-   30        | NT_EXPR • TM_AND NT_EXPR
-   31        | NT_EXPR • TM_OR NT_EXPR
+   20 NT_CMD: TM_WI TM_LEFT_PAREN NT_EXPR • TM_RIGHT_PAREN
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
 
-    TM_PLUS   shift, and go to state 42
-    TM_MINUS  shift, and go to state 43
-    TM_MUL    shift, and go to state 44
-    TM_DIV    shift, and go to state 45
-    TM_MOD    shift, and go to state 46
-
-    $default  reduce using rule 25 (NT_EXPR)
+    TM_RIGHT_PAREN  shift, and go to state 91
+    TM_OR           shift, and go to state 43
+    TM_AND          shift, and go to state 44
+    TM_LT           shift, and go to state 45
+    TM_LE           shift, and go to state 46
+    TM_GT           shift, and go to state 47
+    TM_GE           shift, and go to state 48
+    TM_EQ           shift, and go to state 49
+    TM_NE           shift, and go to state 50
+    TM_PLUS         shift, and go to state 51
+    TM_MINUS        shift, and go to state 52
+    TM_MUL          shift, and go to state 53
+    TM_DIV          shift, and go to state 54
+    TM_MOD          shift, and go to state 55
 
 
 State 62
 
-   19 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
-   20        | NT_EXPR • TM_PLUS NT_EXPR
-   21        | NT_EXPR • TM_MINUS NT_EXPR
-   22        | NT_EXPR • TM_DIV NT_EXPR
-   23        | NT_EXPR • TM_MOD NT_EXPR
-   24        | NT_EXPR • TM_LT NT_EXPR
-   25        | NT_EXPR • TM_GT NT_EXPR
-   26        | NT_EXPR • TM_LE NT_EXPR
-   27        | NT_EXPR • TM_GE NT_EXPR
-   27        | NT_EXPR TM_GE NT_EXPR •
-   28        | NT_EXPR • TM_EQ NT_EXPR
-   29        | NT_EXPR • TM_NE NT_EXPR
-   30        | NT_EXPR • TM_AND NT_EXPR
-   31        | NT_EXPR • TM_OR NT_EXPR
+   21 NT_CMD: TM_WC TM_LEFT_PAREN NT_EXPR • TM_RIGHT_PAREN
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
 
-    TM_PLUS   shift, and go to state 42
-    TM_MINUS  shift, and go to state 43
-    TM_MUL    shift, and go to state 44
-    TM_DIV    shift, and go to state 45
-    TM_MOD    shift, and go to state 46
-
-    $default  reduce using rule 27 (NT_EXPR)
+    TM_RIGHT_PAREN  shift, and go to state 92
+    TM_OR           shift, and go to state 43
+    TM_AND          shift, and go to state 44
+    TM_LT           shift, and go to state 45
+    TM_LE           shift, and go to state 46
+    TM_GT           shift, and go to state 47
+    TM_GE           shift, and go to state 48
+    TM_EQ           shift, and go to state 49
+    TM_NE           shift, and go to state 50
+    TM_PLUS         shift, and go to state 51
+    TM_MINUS        shift, and go to state 52
+    TM_MUL          shift, and go to state 53
+    TM_DIV          shift, and go to state 54
+    TM_MOD          shift, and go to state 55
 
 
 State 63
 
-   19 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
-   20        | NT_EXPR • TM_PLUS NT_EXPR
-   21        | NT_EXPR • TM_MINUS NT_EXPR
-   22        | NT_EXPR • TM_DIV NT_EXPR
-   23        | NT_EXPR • TM_MOD NT_EXPR
-   24        | NT_EXPR • TM_LT NT_EXPR
-   25        | NT_EXPR • TM_GT NT_EXPR
-   26        | NT_EXPR • TM_LE NT_EXPR
-   27        | NT_EXPR • TM_GE NT_EXPR
-   28        | NT_EXPR • TM_EQ NT_EXPR
-   28        | NT_EXPR TM_EQ NT_EXPR •
-   29        | NT_EXPR • TM_NE NT_EXPR
-   30        | NT_EXPR • TM_AND NT_EXPR
-   31        | NT_EXPR • TM_OR NT_EXPR
+    3 NT_DECL: TM_IDENT TM_ASGNOP • NT_EXPR
+    7        | TM_IDENT TM_ASGNOP • NT_EXPR TM_COMMA NT_DECL
 
-    TM_PLUS   shift, and go to state 42
-    TM_MINUS  shift, and go to state 43
-    TM_MUL    shift, and go to state 44
-    TM_DIV    shift, and go to state 45
-    TM_MOD    shift, and go to state 46
+    TM_NAT         shift, and go to state 1
+    TM_IDENT       shift, and go to state 2
+    TM_LEFT_PAREN  shift, and go to state 3
+    TM_MALLOC      shift, and go to state 4
+    TM_RI          shift, and go to state 5
+    TM_RC          shift, and go to state 6
+    TM_NOT         shift, and go to state 12
+    TM_MINUS       shift, and go to state 13
+    TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
 
-    $default  reduce using rule 28 (NT_EXPR)
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 93
 
 
 State 64
 
-   19 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
-   20        | NT_EXPR • TM_PLUS NT_EXPR
-   21        | NT_EXPR • TM_MINUS NT_EXPR
-   22        | NT_EXPR • TM_DIV NT_EXPR
-   23        | NT_EXPR • TM_MOD NT_EXPR
-   24        | NT_EXPR • TM_LT NT_EXPR
-   25        | NT_EXPR • TM_GT NT_EXPR
-   26        | NT_EXPR • TM_LE NT_EXPR
-   27        | NT_EXPR • TM_GE NT_EXPR
-   28        | NT_EXPR • TM_EQ NT_EXPR
-   29        | NT_EXPR • TM_NE NT_EXPR
-   29        | NT_EXPR TM_NE NT_EXPR •
-   30        | NT_EXPR • TM_AND NT_EXPR
-   31        | NT_EXPR • TM_OR NT_EXPR
+    4 NT_DECL: TM_IDENT TM_LSB • NT_EXPR TM_RSB
+    5        | TM_IDENT TM_LSB • NT_EXPR TM_RSB TM_ASGNOP TM_LEFT_BRACE NT_EXPR_LIST TM_RIGHT_BRACE
+    8        | TM_IDENT TM_LSB • NT_EXPR TM_RSB TM_COMMA NT_DECL
+    9        | TM_IDENT TM_LSB • NT_EXPR TM_RSB TM_ASGNOP TM_LEFT_BRACE NT_EXPR_LIST TM_RIGHT_BRACE TM_COMMA NT_DECL
+   10        | TM_IDENT TM_LSB • NT_EXPR TM_RSB TM_ASGNOP TM_SL
+   11        | TM_IDENT TM_LSB • NT_EXPR TM_RSB TM_ASGNOP TM_SL TM_COMMA NT_DECL
 
-    TM_PLUS   shift, and go to state 42
-    TM_MINUS  shift, and go to state 43
-    TM_MUL    shift, and go to state 44
-    TM_DIV    shift, and go to state 45
-    TM_MOD    shift, and go to state 46
+    TM_NAT         shift, and go to state 1
+    TM_IDENT       shift, and go to state 2
+    TM_LEFT_PAREN  shift, and go to state 3
+    TM_MALLOC      shift, and go to state 4
+    TM_RI          shift, and go to state 5
+    TM_RC          shift, and go to state 6
+    TM_NOT         shift, and go to state 12
+    TM_MINUS       shift, and go to state 13
+    TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
 
-    $default  reduce using rule 29 (NT_EXPR)
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 94
 
 
 State 65
 
-   19 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
-   20        | NT_EXPR • TM_PLUS NT_EXPR
-   20        | NT_EXPR TM_PLUS NT_EXPR •
-   21        | NT_EXPR • TM_MINUS NT_EXPR
-   22        | NT_EXPR • TM_DIV NT_EXPR
-   23        | NT_EXPR • TM_MOD NT_EXPR
-   24        | NT_EXPR • TM_LT NT_EXPR
-   25        | NT_EXPR • TM_GT NT_EXPR
-   26        | NT_EXPR • TM_LE NT_EXPR
-   27        | NT_EXPR • TM_GE NT_EXPR
-   28        | NT_EXPR • TM_EQ NT_EXPR
-   29        | NT_EXPR • TM_NE NT_EXPR
-   30        | NT_EXPR • TM_AND NT_EXPR
-   31        | NT_EXPR • TM_OR NT_EXPR
+    6 NT_DECL: TM_IDENT TM_COMMA • NT_DECL
 
-    TM_MUL  shift, and go to state 44
-    TM_DIV  shift, and go to state 45
-    TM_MOD  shift, and go to state 46
+    TM_IDENT  shift, and go to state 30
 
-    $default  reduce using rule 20 (NT_EXPR)
+    NT_DECL  go to state 95
 
 
 State 66
 
-   19 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
-   20        | NT_EXPR • TM_PLUS NT_EXPR
-   21        | NT_EXPR • TM_MINUS NT_EXPR
-   21        | NT_EXPR TM_MINUS NT_EXPR •
-   22        | NT_EXPR • TM_DIV NT_EXPR
-   23        | NT_EXPR • TM_MOD NT_EXPR
-   24        | NT_EXPR • TM_LT NT_EXPR
-   25        | NT_EXPR • TM_GT NT_EXPR
-   26        | NT_EXPR • TM_LE NT_EXPR
-   27        | NT_EXPR • TM_GE NT_EXPR
-   28        | NT_EXPR • TM_EQ NT_EXPR
-   29        | NT_EXPR • TM_NE NT_EXPR
-   30        | NT_EXPR • TM_AND NT_EXPR
-   31        | NT_EXPR • TM_OR NT_EXPR
+   18 NT_CMD: TM_IF NT_EXPR TM_THEN • TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE TM_ELSE TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
 
-    TM_MUL  shift, and go to state 44
-    TM_DIV  shift, and go to state 45
-    TM_MOD  shift, and go to state 46
-
-    $default  reduce using rule 21 (NT_EXPR)
+    TM_LEFT_BRACE  shift, and go to state 96
 
 
 State 67
 
-   19 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
-   19        | NT_EXPR TM_MUL NT_EXPR •
-   20        | NT_EXPR • TM_PLUS NT_EXPR
-   21        | NT_EXPR • TM_MINUS NT_EXPR
-   22        | NT_EXPR • TM_DIV NT_EXPR
-   23        | NT_EXPR • TM_MOD NT_EXPR
-   24        | NT_EXPR • TM_LT NT_EXPR
-   25        | NT_EXPR • TM_GT NT_EXPR
-   26        | NT_EXPR • TM_LE NT_EXPR
-   27        | NT_EXPR • TM_GE NT_EXPR
-   28        | NT_EXPR • TM_EQ NT_EXPR
-   29        | NT_EXPR • TM_NE NT_EXPR
-   30        | NT_EXPR • TM_AND NT_EXPR
-   31        | NT_EXPR • TM_OR NT_EXPR
+   19 NT_CMD: TM_WHILE NT_EXPR TM_DO • TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
 
-    $default  reduce using rule 19 (NT_EXPR)
+    TM_LEFT_BRACE  shift, and go to state 97
 
 
 State 68
 
-   19 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
-   20        | NT_EXPR • TM_PLUS NT_EXPR
-   21        | NT_EXPR • TM_MINUS NT_EXPR
-   22        | NT_EXPR • TM_DIV NT_EXPR
-   22        | NT_EXPR TM_DIV NT_EXPR •
-   23        | NT_EXPR • TM_MOD NT_EXPR
-   24        | NT_EXPR • TM_LT NT_EXPR
-   25        | NT_EXPR • TM_GT NT_EXPR
-   26        | NT_EXPR • TM_LE NT_EXPR
-   27        | NT_EXPR • TM_GE NT_EXPR
-   28        | NT_EXPR • TM_EQ NT_EXPR
-   29        | NT_EXPR • TM_NE NT_EXPR
-   30        | NT_EXPR • TM_AND NT_EXPR
-   31        | NT_EXPR • TM_OR NT_EXPR
+   33 NT_EXPR_2: TM_LEN TM_LEFT_PAREN TM_SL • TM_RIGHT_PAREN
 
-    $default  reduce using rule 22 (NT_EXPR)
+    TM_RIGHT_PAREN  shift, and go to state 98
 
 
 State 69
 
-   19 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
-   20        | NT_EXPR • TM_PLUS NT_EXPR
-   21        | NT_EXPR • TM_MINUS NT_EXPR
-   22        | NT_EXPR • TM_DIV NT_EXPR
-   23        | NT_EXPR • TM_MOD NT_EXPR
-   23        | NT_EXPR TM_MOD NT_EXPR •
-   24        | NT_EXPR • TM_LT NT_EXPR
-   25        | NT_EXPR • TM_GT NT_EXPR
-   26        | NT_EXPR • TM_LE NT_EXPR
-   27        | NT_EXPR • TM_GE NT_EXPR
-   28        | NT_EXPR • TM_EQ NT_EXPR
-   29        | NT_EXPR • TM_NE NT_EXPR
-   30        | NT_EXPR • TM_AND NT_EXPR
-   31        | NT_EXPR • TM_OR NT_EXPR
+   34 NT_EXPR_2: TM_LEN TM_LEFT_PAREN NT_EXPR • TM_RIGHT_PAREN
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
 
-    $default  reduce using rule 23 (NT_EXPR)
+    TM_RIGHT_PAREN  shift, and go to state 99
+    TM_OR           shift, and go to state 43
+    TM_AND          shift, and go to state 44
+    TM_LT           shift, and go to state 45
+    TM_LE           shift, and go to state 46
+    TM_GT           shift, and go to state 47
+    TM_GE           shift, and go to state 48
+    TM_EQ           shift, and go to state 49
+    TM_NE           shift, and go to state 50
+    TM_PLUS         shift, and go to state 51
+    TM_MINUS        shift, and go to state 52
+    TM_MUL          shift, and go to state 53
+    TM_DIV          shift, and go to state 54
+    TM_MOD          shift, and go to state 55
 
 
 State 70
 
-   14 NT_EXPR_2: TM_MALLOC TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN •
+   35 NT_EXPR_2: TM_RS TM_LEFT_PAREN TM_RIGHT_PAREN •
 
-    $default  reduce using rule 14 (NT_EXPR_2)
+    $default  reduce using rule 35 (NT_EXPR_2)
 
 
 State 71
 
-    7 NT_CMD: TM_WI TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN •
+   23 NT_CMD: TM_WS TM_LEFT_PAREN TM_SL • TM_RIGHT_PAREN
 
-    $default  reduce using rule 7 (NT_CMD)
+    TM_RIGHT_PAREN  shift, and go to state 100
 
 
 State 72
 
-    8 NT_CMD: TM_WC TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN •
+   22 NT_CMD: TM_WS TM_LEFT_PAREN NT_EXPR • TM_RIGHT_PAREN
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
 
-    $default  reduce using rule 8 (NT_CMD)
+    TM_RIGHT_PAREN  shift, and go to state 101
+    TM_OR           shift, and go to state 43
+    TM_AND          shift, and go to state 44
+    TM_LT           shift, and go to state 45
+    TM_LE           shift, and go to state 46
+    TM_GT           shift, and go to state 47
+    TM_GE           shift, and go to state 48
+    TM_EQ           shift, and go to state 49
+    TM_NE           shift, and go to state 50
+    TM_PLUS         shift, and go to state 51
+    TM_MINUS        shift, and go to state 52
+    TM_MUL          shift, and go to state 53
+    TM_DIV          shift, and go to state 54
+    TM_MOD          shift, and go to state 55
 
 
 State 73
 
-    5 NT_CMD: TM_IF NT_EXPR TM_THEN TM_LEFT_BRACE • NT_CMD TM_RIGHT_BRACE TM_ELSE TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
+   17 NT_CMD: NT_CMD • TM_SEMICOL NT_CMD
+   17       | NT_CMD TM_SEMICOL NT_CMD •
 
-    TM_NAT         shift, and go to state 1
-    TM_IDENT       shift, and go to state 2
-    TM_LEFT_PAREN  shift, and go to state 3
-    TM_MALLOC      shift, and go to state 4
-    TM_RI          shift, and go to state 5
-    TM_RC          shift, and go to state 6
-    TM_WI          shift, and go to state 7
-    TM_WC          shift, and go to state 8
-    TM_VAR         shift, and go to state 9
-    TM_IF          shift, and go to state 10
-    TM_WHILE       shift, and go to state 11
-    TM_NOT         shift, and go to state 12
-    TM_MINUS       shift, and go to state 13
-    TM_MUL         shift, and go to state 14
-
-    NT_CMD     go to state 75
-    NT_EXPR_2  go to state 17
-    NT_EXPR    go to state 18
+    $default  reduce using rule 17 (NT_CMD)
 
 
 State 74
 
-    6 NT_CMD: TM_WHILE NT_EXPR TM_DO TM_LEFT_BRACE • NT_CMD TM_RIGHT_BRACE
+   16 NT_CMD: NT_EXPR TM_ASGNOP TM_SL •
 
-    TM_NAT         shift, and go to state 1
-    TM_IDENT       shift, and go to state 2
-    TM_LEFT_PAREN  shift, and go to state 3
-    TM_MALLOC      shift, and go to state 4
-    TM_RI          shift, and go to state 5
-    TM_RC          shift, and go to state 6
-    TM_WI          shift, and go to state 7
-    TM_WC          shift, and go to state 8
-    TM_VAR         shift, and go to state 9
-    TM_IF          shift, and go to state 10
-    TM_WHILE       shift, and go to state 11
-    TM_NOT         shift, and go to state 12
-    TM_MINUS       shift, and go to state 13
-    TM_MUL         shift, and go to state 14
-
-    NT_CMD     go to state 76
-    NT_EXPR_2  go to state 17
-    NT_EXPR    go to state 18
+    $default  reduce using rule 16 (NT_CMD)
 
 
 State 75
 
-    4 NT_CMD: NT_CMD • TM_SEMICOL NT_CMD
-    5       | TM_IF NT_EXPR TM_THEN TM_LEFT_BRACE NT_CMD • TM_RIGHT_BRACE TM_ELSE TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
+   15 NT_CMD: NT_EXPR TM_ASGNOP NT_EXPR •
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
 
-    TM_RIGHT_BRACE  shift, and go to state 77
-    TM_SEMICOL      shift, and go to state 32
+    TM_OR     shift, and go to state 43
+    TM_AND    shift, and go to state 44
+    TM_LT     shift, and go to state 45
+    TM_LE     shift, and go to state 46
+    TM_GT     shift, and go to state 47
+    TM_GE     shift, and go to state 48
+    TM_EQ     shift, and go to state 49
+    TM_NE     shift, and go to state 50
+    TM_PLUS   shift, and go to state 51
+    TM_MINUS  shift, and go to state 52
+    TM_MUL    shift, and go to state 53
+    TM_DIV    shift, and go to state 54
+    TM_MOD    shift, and go to state 55
+
+    $default  reduce using rule 15 (NT_CMD)
 
 
 State 76
 
-    4 NT_CMD: NT_CMD • TM_SEMICOL NT_CMD
-    6       | TM_WHILE NT_EXPR TM_DO TM_LEFT_BRACE NT_CMD • TM_RIGHT_BRACE
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
+   51        | NT_EXPR TM_OR NT_EXPR •
 
-    TM_RIGHT_BRACE  shift, and go to state 78
-    TM_SEMICOL      shift, and go to state 32
+    TM_AND    shift, and go to state 44
+    TM_LT     shift, and go to state 45
+    TM_LE     shift, and go to state 46
+    TM_GT     shift, and go to state 47
+    TM_GE     shift, and go to state 48
+    TM_EQ     shift, and go to state 49
+    TM_NE     shift, and go to state 50
+    TM_PLUS   shift, and go to state 51
+    TM_MINUS  shift, and go to state 52
+    TM_MUL    shift, and go to state 53
+    TM_DIV    shift, and go to state 54
+    TM_MOD    shift, and go to state 55
+
+    $default  reduce using rule 51 (NT_EXPR)
 
 
 State 77
 
-    5 NT_CMD: TM_IF NT_EXPR TM_THEN TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE • TM_ELSE TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   50        | NT_EXPR TM_AND NT_EXPR •
+   51        | NT_EXPR • TM_OR NT_EXPR
 
-    TM_ELSE  shift, and go to state 79
+    TM_LT     shift, and go to state 45
+    TM_LE     shift, and go to state 46
+    TM_GT     shift, and go to state 47
+    TM_GE     shift, and go to state 48
+    TM_EQ     shift, and go to state 49
+    TM_NE     shift, and go to state 50
+    TM_PLUS   shift, and go to state 51
+    TM_MINUS  shift, and go to state 52
+    TM_MUL    shift, and go to state 53
+    TM_DIV    shift, and go to state 54
+    TM_MOD    shift, and go to state 55
+
+    $default  reduce using rule 50 (NT_EXPR)
 
 
 State 78
 
-    6 NT_CMD: TM_WHILE NT_EXPR TM_DO TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE •
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   44        | NT_EXPR TM_LT NT_EXPR •
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
 
-    $default  reduce using rule 6 (NT_CMD)
+    TM_PLUS   shift, and go to state 51
+    TM_MINUS  shift, and go to state 52
+    TM_MUL    shift, and go to state 53
+    TM_DIV    shift, and go to state 54
+    TM_MOD    shift, and go to state 55
+
+    $default  reduce using rule 44 (NT_EXPR)
 
 
 State 79
 
-    5 NT_CMD: TM_IF NT_EXPR TM_THEN TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE TM_ELSE • TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   46        | NT_EXPR TM_LE NT_EXPR •
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
 
-    TM_LEFT_BRACE  shift, and go to state 80
+    TM_PLUS   shift, and go to state 51
+    TM_MINUS  shift, and go to state 52
+    TM_MUL    shift, and go to state 53
+    TM_DIV    shift, and go to state 54
+    TM_MOD    shift, and go to state 55
+
+    $default  reduce using rule 46 (NT_EXPR)
 
 
 State 80
 
-    5 NT_CMD: TM_IF NT_EXPR TM_THEN TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE TM_ELSE TM_LEFT_BRACE • NT_CMD TM_RIGHT_BRACE
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   45        | NT_EXPR TM_GT NT_EXPR •
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
+
+    TM_PLUS   shift, and go to state 51
+    TM_MINUS  shift, and go to state 52
+    TM_MUL    shift, and go to state 53
+    TM_DIV    shift, and go to state 54
+    TM_MOD    shift, and go to state 55
+
+    $default  reduce using rule 45 (NT_EXPR)
+
+
+State 81
+
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   47        | NT_EXPR TM_GE NT_EXPR •
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
+
+    TM_PLUS   shift, and go to state 51
+    TM_MINUS  shift, and go to state 52
+    TM_MUL    shift, and go to state 53
+    TM_DIV    shift, and go to state 54
+    TM_MOD    shift, and go to state 55
+
+    $default  reduce using rule 47 (NT_EXPR)
+
+
+State 82
+
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   48        | NT_EXPR TM_EQ NT_EXPR •
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
+
+    TM_PLUS   shift, and go to state 51
+    TM_MINUS  shift, and go to state 52
+    TM_MUL    shift, and go to state 53
+    TM_DIV    shift, and go to state 54
+    TM_MOD    shift, and go to state 55
+
+    $default  reduce using rule 48 (NT_EXPR)
+
+
+State 83
+
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   49        | NT_EXPR TM_NE NT_EXPR •
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
+
+    TM_PLUS   shift, and go to state 51
+    TM_MINUS  shift, and go to state 52
+    TM_MUL    shift, and go to state 53
+    TM_DIV    shift, and go to state 54
+    TM_MOD    shift, and go to state 55
+
+    $default  reduce using rule 49 (NT_EXPR)
+
+
+State 84
+
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   40        | NT_EXPR TM_PLUS NT_EXPR •
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
+
+    TM_MUL  shift, and go to state 53
+    TM_DIV  shift, and go to state 54
+    TM_MOD  shift, and go to state 55
+
+    $default  reduce using rule 40 (NT_EXPR)
+
+
+State 85
+
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   41        | NT_EXPR TM_MINUS NT_EXPR •
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
+
+    TM_MUL  shift, and go to state 53
+    TM_DIV  shift, and go to state 54
+    TM_MOD  shift, and go to state 55
+
+    $default  reduce using rule 41 (NT_EXPR)
+
+
+State 86
+
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   39        | NT_EXPR TM_MUL NT_EXPR •
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
+
+    $default  reduce using rule 39 (NT_EXPR)
+
+
+State 87
+
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   42        | NT_EXPR TM_DIV NT_EXPR •
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
+
+    $default  reduce using rule 42 (NT_EXPR)
+
+
+State 88
+
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   43        | NT_EXPR TM_MOD NT_EXPR •
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
+
+    $default  reduce using rule 43 (NT_EXPR)
+
+
+State 89
+
+   36 NT_EXPR_2: TM_IDENT TM_LSB NT_EXPR TM_RSB •
+
+    $default  reduce using rule 36 (NT_EXPR_2)
+
+
+State 90
+
+   30 NT_EXPR_2: TM_MALLOC TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN •
+
+    $default  reduce using rule 30 (NT_EXPR_2)
+
+
+State 91
+
+   20 NT_CMD: TM_WI TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN •
+
+    $default  reduce using rule 20 (NT_CMD)
+
+
+State 92
+
+   21 NT_CMD: TM_WC TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN •
+
+    $default  reduce using rule 21 (NT_CMD)
+
+
+State 93
+
+    3 NT_DECL: TM_IDENT TM_ASGNOP NT_EXPR •
+    7        | TM_IDENT TM_ASGNOP NT_EXPR • TM_COMMA NT_DECL
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
+
+    TM_OR     shift, and go to state 43
+    TM_AND    shift, and go to state 44
+    TM_LT     shift, and go to state 45
+    TM_LE     shift, and go to state 46
+    TM_GT     shift, and go to state 47
+    TM_GE     shift, and go to state 48
+    TM_EQ     shift, and go to state 49
+    TM_NE     shift, and go to state 50
+    TM_PLUS   shift, and go to state 51
+    TM_MINUS  shift, and go to state 52
+    TM_MUL    shift, and go to state 53
+    TM_DIV    shift, and go to state 54
+    TM_MOD    shift, and go to state 55
+    TM_COMMA  shift, and go to state 102
+
+    $default  reduce using rule 3 (NT_DECL)
+
+
+State 94
+
+    4 NT_DECL: TM_IDENT TM_LSB NT_EXPR • TM_RSB
+    5        | TM_IDENT TM_LSB NT_EXPR • TM_RSB TM_ASGNOP TM_LEFT_BRACE NT_EXPR_LIST TM_RIGHT_BRACE
+    8        | TM_IDENT TM_LSB NT_EXPR • TM_RSB TM_COMMA NT_DECL
+    9        | TM_IDENT TM_LSB NT_EXPR • TM_RSB TM_ASGNOP TM_LEFT_BRACE NT_EXPR_LIST TM_RIGHT_BRACE TM_COMMA NT_DECL
+   10        | TM_IDENT TM_LSB NT_EXPR • TM_RSB TM_ASGNOP TM_SL
+   11        | TM_IDENT TM_LSB NT_EXPR • TM_RSB TM_ASGNOP TM_SL TM_COMMA NT_DECL
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
+
+    TM_OR     shift, and go to state 43
+    TM_AND    shift, and go to state 44
+    TM_LT     shift, and go to state 45
+    TM_LE     shift, and go to state 46
+    TM_GT     shift, and go to state 47
+    TM_GE     shift, and go to state 48
+    TM_EQ     shift, and go to state 49
+    TM_NE     shift, and go to state 50
+    TM_PLUS   shift, and go to state 51
+    TM_MINUS  shift, and go to state 52
+    TM_MUL    shift, and go to state 53
+    TM_DIV    shift, and go to state 54
+    TM_MOD    shift, and go to state 55
+    TM_RSB    shift, and go to state 103
+
+
+State 95
+
+    6 NT_DECL: TM_IDENT TM_COMMA NT_DECL •
+
+    $default  reduce using rule 6 (NT_DECL)
+
+
+State 96
+
+   18 NT_CMD: TM_IF NT_EXPR TM_THEN TM_LEFT_BRACE • NT_CMD TM_RIGHT_BRACE TM_ELSE TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
 
     TM_NAT         shift, and go to state 1
     TM_IDENT       shift, and go to state 2
@@ -1449,23 +1937,356 @@ State 80
     TM_NOT         shift, and go to state 12
     TM_MINUS       shift, and go to state 13
     TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_WS          shift, and go to state 17
+    TM_CL          shift, and go to state 18
 
-    NT_CMD     go to state 81
-    NT_EXPR_2  go to state 17
-    NT_EXPR    go to state 18
-
-
-State 81
-
-    4 NT_CMD: NT_CMD • TM_SEMICOL NT_CMD
-    5       | TM_IF NT_EXPR TM_THEN TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE TM_ELSE TM_LEFT_BRACE NT_CMD • TM_RIGHT_BRACE
-
-    TM_RIGHT_BRACE  shift, and go to state 82
-    TM_SEMICOL      shift, and go to state 32
+    NT_CMD     go to state 104
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 22
 
 
-State 82
+State 97
 
-    5 NT_CMD: TM_IF NT_EXPR TM_THEN TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE TM_ELSE TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE •
+   19 NT_CMD: TM_WHILE NT_EXPR TM_DO TM_LEFT_BRACE • NT_CMD TM_RIGHT_BRACE
 
-    $default  reduce using rule 5 (NT_CMD)
+    TM_NAT         shift, and go to state 1
+    TM_IDENT       shift, and go to state 2
+    TM_LEFT_PAREN  shift, and go to state 3
+    TM_MALLOC      shift, and go to state 4
+    TM_RI          shift, and go to state 5
+    TM_RC          shift, and go to state 6
+    TM_WI          shift, and go to state 7
+    TM_WC          shift, and go to state 8
+    TM_VAR         shift, and go to state 9
+    TM_IF          shift, and go to state 10
+    TM_WHILE       shift, and go to state 11
+    TM_NOT         shift, and go to state 12
+    TM_MINUS       shift, and go to state 13
+    TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_WS          shift, and go to state 17
+    TM_CL          shift, and go to state 18
+
+    NT_CMD     go to state 105
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 22
+
+
+State 98
+
+   33 NT_EXPR_2: TM_LEN TM_LEFT_PAREN TM_SL TM_RIGHT_PAREN •
+
+    $default  reduce using rule 33 (NT_EXPR_2)
+
+
+State 99
+
+   34 NT_EXPR_2: TM_LEN TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN •
+
+    $default  reduce using rule 34 (NT_EXPR_2)
+
+
+State 100
+
+   23 NT_CMD: TM_WS TM_LEFT_PAREN TM_SL TM_RIGHT_PAREN •
+
+    $default  reduce using rule 23 (NT_CMD)
+
+
+State 101
+
+   22 NT_CMD: TM_WS TM_LEFT_PAREN NT_EXPR TM_RIGHT_PAREN •
+
+    $default  reduce using rule 22 (NT_CMD)
+
+
+State 102
+
+    7 NT_DECL: TM_IDENT TM_ASGNOP NT_EXPR TM_COMMA • NT_DECL
+
+    TM_IDENT  shift, and go to state 30
+
+    NT_DECL  go to state 106
+
+
+State 103
+
+    4 NT_DECL: TM_IDENT TM_LSB NT_EXPR TM_RSB •
+    5        | TM_IDENT TM_LSB NT_EXPR TM_RSB • TM_ASGNOP TM_LEFT_BRACE NT_EXPR_LIST TM_RIGHT_BRACE
+    8        | TM_IDENT TM_LSB NT_EXPR TM_RSB • TM_COMMA NT_DECL
+    9        | TM_IDENT TM_LSB NT_EXPR TM_RSB • TM_ASGNOP TM_LEFT_BRACE NT_EXPR_LIST TM_RIGHT_BRACE TM_COMMA NT_DECL
+   10        | TM_IDENT TM_LSB NT_EXPR TM_RSB • TM_ASGNOP TM_SL
+   11        | TM_IDENT TM_LSB NT_EXPR TM_RSB • TM_ASGNOP TM_SL TM_COMMA NT_DECL
+
+    TM_ASGNOP  shift, and go to state 107
+    TM_COMMA   shift, and go to state 108
+
+    $default  reduce using rule 4 (NT_DECL)
+
+
+State 104
+
+   17 NT_CMD: NT_CMD • TM_SEMICOL NT_CMD
+   18       | TM_IF NT_EXPR TM_THEN TM_LEFT_BRACE NT_CMD • TM_RIGHT_BRACE TM_ELSE TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
+
+    TM_RIGHT_BRACE  shift, and go to state 109
+    TM_SEMICOL      shift, and go to state 41
+
+
+State 105
+
+   17 NT_CMD: NT_CMD • TM_SEMICOL NT_CMD
+   19       | TM_WHILE NT_EXPR TM_DO TM_LEFT_BRACE NT_CMD • TM_RIGHT_BRACE
+
+    TM_RIGHT_BRACE  shift, and go to state 110
+    TM_SEMICOL      shift, and go to state 41
+
+
+State 106
+
+    7 NT_DECL: TM_IDENT TM_ASGNOP NT_EXPR TM_COMMA NT_DECL •
+
+    $default  reduce using rule 7 (NT_DECL)
+
+
+State 107
+
+    5 NT_DECL: TM_IDENT TM_LSB NT_EXPR TM_RSB TM_ASGNOP • TM_LEFT_BRACE NT_EXPR_LIST TM_RIGHT_BRACE
+    9        | TM_IDENT TM_LSB NT_EXPR TM_RSB TM_ASGNOP • TM_LEFT_BRACE NT_EXPR_LIST TM_RIGHT_BRACE TM_COMMA NT_DECL
+   10        | TM_IDENT TM_LSB NT_EXPR TM_RSB TM_ASGNOP • TM_SL
+   11        | TM_IDENT TM_LSB NT_EXPR TM_RSB TM_ASGNOP • TM_SL TM_COMMA NT_DECL
+
+    TM_LEFT_BRACE  shift, and go to state 111
+    TM_SL          shift, and go to state 112
+
+
+State 108
+
+    8 NT_DECL: TM_IDENT TM_LSB NT_EXPR TM_RSB TM_COMMA • NT_DECL
+
+    TM_IDENT  shift, and go to state 30
+
+    NT_DECL  go to state 113
+
+
+State 109
+
+   18 NT_CMD: TM_IF NT_EXPR TM_THEN TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE • TM_ELSE TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
+
+    TM_ELSE  shift, and go to state 114
+
+
+State 110
+
+   19 NT_CMD: TM_WHILE NT_EXPR TM_DO TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE •
+
+    $default  reduce using rule 19 (NT_CMD)
+
+
+State 111
+
+    5 NT_DECL: TM_IDENT TM_LSB NT_EXPR TM_RSB TM_ASGNOP TM_LEFT_BRACE • NT_EXPR_LIST TM_RIGHT_BRACE
+    9        | TM_IDENT TM_LSB NT_EXPR TM_RSB TM_ASGNOP TM_LEFT_BRACE • NT_EXPR_LIST TM_RIGHT_BRACE TM_COMMA NT_DECL
+
+    TM_NAT         shift, and go to state 1
+    TM_IDENT       shift, and go to state 2
+    TM_LEFT_PAREN  shift, and go to state 3
+    TM_MALLOC      shift, and go to state 4
+    TM_RI          shift, and go to state 5
+    TM_RC          shift, and go to state 6
+    TM_NOT         shift, and go to state 12
+    TM_MINUS       shift, and go to state 13
+    TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
+
+    NT_EXPR_LIST  go to state 115
+    NT_EXPR_2     go to state 21
+    NT_EXPR       go to state 116
+
+
+State 112
+
+   10 NT_DECL: TM_IDENT TM_LSB NT_EXPR TM_RSB TM_ASGNOP TM_SL •
+   11        | TM_IDENT TM_LSB NT_EXPR TM_RSB TM_ASGNOP TM_SL • TM_COMMA NT_DECL
+
+    TM_COMMA  shift, and go to state 117
+
+    $default  reduce using rule 10 (NT_DECL)
+
+
+State 113
+
+    8 NT_DECL: TM_IDENT TM_LSB NT_EXPR TM_RSB TM_COMMA NT_DECL •
+
+    $default  reduce using rule 8 (NT_DECL)
+
+
+State 114
+
+   18 NT_CMD: TM_IF NT_EXPR TM_THEN TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE TM_ELSE • TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE
+
+    TM_LEFT_BRACE  shift, and go to state 118
+
+
+State 115
+
+    5 NT_DECL: TM_IDENT TM_LSB NT_EXPR TM_RSB TM_ASGNOP TM_LEFT_BRACE NT_EXPR_LIST • TM_RIGHT_BRACE
+    9        | TM_IDENT TM_LSB NT_EXPR TM_RSB TM_ASGNOP TM_LEFT_BRACE NT_EXPR_LIST • TM_RIGHT_BRACE TM_COMMA NT_DECL
+
+    TM_RIGHT_BRACE  shift, and go to state 119
+
+
+State 116
+
+   12 NT_EXPR_LIST: NT_EXPR •
+   13             | NT_EXPR • TM_COMMA NT_EXPR_LIST
+   39 NT_EXPR: NT_EXPR • TM_MUL NT_EXPR
+   40        | NT_EXPR • TM_PLUS NT_EXPR
+   41        | NT_EXPR • TM_MINUS NT_EXPR
+   42        | NT_EXPR • TM_DIV NT_EXPR
+   43        | NT_EXPR • TM_MOD NT_EXPR
+   44        | NT_EXPR • TM_LT NT_EXPR
+   45        | NT_EXPR • TM_GT NT_EXPR
+   46        | NT_EXPR • TM_LE NT_EXPR
+   47        | NT_EXPR • TM_GE NT_EXPR
+   48        | NT_EXPR • TM_EQ NT_EXPR
+   49        | NT_EXPR • TM_NE NT_EXPR
+   50        | NT_EXPR • TM_AND NT_EXPR
+   51        | NT_EXPR • TM_OR NT_EXPR
+
+    TM_OR     shift, and go to state 43
+    TM_AND    shift, and go to state 44
+    TM_LT     shift, and go to state 45
+    TM_LE     shift, and go to state 46
+    TM_GT     shift, and go to state 47
+    TM_GE     shift, and go to state 48
+    TM_EQ     shift, and go to state 49
+    TM_NE     shift, and go to state 50
+    TM_PLUS   shift, and go to state 51
+    TM_MINUS  shift, and go to state 52
+    TM_MUL    shift, and go to state 53
+    TM_DIV    shift, and go to state 54
+    TM_MOD    shift, and go to state 55
+    TM_COMMA  shift, and go to state 120
+
+    $default  reduce using rule 12 (NT_EXPR_LIST)
+
+
+State 117
+
+   11 NT_DECL: TM_IDENT TM_LSB NT_EXPR TM_RSB TM_ASGNOP TM_SL TM_COMMA • NT_DECL
+
+    TM_IDENT  shift, and go to state 30
+
+    NT_DECL  go to state 121
+
+
+State 118
+
+   18 NT_CMD: TM_IF NT_EXPR TM_THEN TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE TM_ELSE TM_LEFT_BRACE • NT_CMD TM_RIGHT_BRACE
+
+    TM_NAT         shift, and go to state 1
+    TM_IDENT       shift, and go to state 2
+    TM_LEFT_PAREN  shift, and go to state 3
+    TM_MALLOC      shift, and go to state 4
+    TM_RI          shift, and go to state 5
+    TM_RC          shift, and go to state 6
+    TM_WI          shift, and go to state 7
+    TM_WC          shift, and go to state 8
+    TM_VAR         shift, and go to state 9
+    TM_IF          shift, and go to state 10
+    TM_WHILE       shift, and go to state 11
+    TM_NOT         shift, and go to state 12
+    TM_MINUS       shift, and go to state 13
+    TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_WS          shift, and go to state 17
+    TM_CL          shift, and go to state 18
+
+    NT_CMD     go to state 122
+    NT_EXPR_2  go to state 21
+    NT_EXPR    go to state 22
+
+
+State 119
+
+    5 NT_DECL: TM_IDENT TM_LSB NT_EXPR TM_RSB TM_ASGNOP TM_LEFT_BRACE NT_EXPR_LIST TM_RIGHT_BRACE •
+    9        | TM_IDENT TM_LSB NT_EXPR TM_RSB TM_ASGNOP TM_LEFT_BRACE NT_EXPR_LIST TM_RIGHT_BRACE • TM_COMMA NT_DECL
+
+    TM_COMMA  shift, and go to state 123
+
+    $default  reduce using rule 5 (NT_DECL)
+
+
+State 120
+
+   13 NT_EXPR_LIST: NT_EXPR TM_COMMA • NT_EXPR_LIST
+
+    TM_NAT         shift, and go to state 1
+    TM_IDENT       shift, and go to state 2
+    TM_LEFT_PAREN  shift, and go to state 3
+    TM_MALLOC      shift, and go to state 4
+    TM_RI          shift, and go to state 5
+    TM_RC          shift, and go to state 6
+    TM_NOT         shift, and go to state 12
+    TM_MINUS       shift, and go to state 13
+    TM_MUL         shift, and go to state 14
+    TM_LEN         shift, and go to state 15
+    TM_RS          shift, and go to state 16
+    TM_CL          shift, and go to state 18
+
+    NT_EXPR_LIST  go to state 124
+    NT_EXPR_2     go to state 21
+    NT_EXPR       go to state 116
+
+
+State 121
+
+   11 NT_DECL: TM_IDENT TM_LSB NT_EXPR TM_RSB TM_ASGNOP TM_SL TM_COMMA NT_DECL •
+
+    $default  reduce using rule 11 (NT_DECL)
+
+
+State 122
+
+   17 NT_CMD: NT_CMD • TM_SEMICOL NT_CMD
+   18       | TM_IF NT_EXPR TM_THEN TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE TM_ELSE TM_LEFT_BRACE NT_CMD • TM_RIGHT_BRACE
+
+    TM_RIGHT_BRACE  shift, and go to state 125
+    TM_SEMICOL      shift, and go to state 41
+
+
+State 123
+
+    9 NT_DECL: TM_IDENT TM_LSB NT_EXPR TM_RSB TM_ASGNOP TM_LEFT_BRACE NT_EXPR_LIST TM_RIGHT_BRACE TM_COMMA • NT_DECL
+
+    TM_IDENT  shift, and go to state 30
+
+    NT_DECL  go to state 126
+
+
+State 124
+
+   13 NT_EXPR_LIST: NT_EXPR TM_COMMA NT_EXPR_LIST •
+
+    $default  reduce using rule 13 (NT_EXPR_LIST)
+
+
+State 125
+
+   18 NT_CMD: TM_IF NT_EXPR TM_THEN TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE TM_ELSE TM_LEFT_BRACE NT_CMD TM_RIGHT_BRACE •
+
+    $default  reduce using rule 18 (NT_CMD)
+
+
+State 126
+
+    9 NT_DECL: TM_IDENT TM_LSB NT_EXPR TM_RSB TM_ASGNOP TM_LEFT_BRACE NT_EXPR_LIST TM_RIGHT_BRACE TM_COMMA NT_DECL •
+
+    $default  reduce using rule 9 (NT_DECL)

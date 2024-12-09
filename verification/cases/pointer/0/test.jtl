@@ -1,0 +1,20 @@
+var a[10000];
+var n = read_int();
+if (n > 10000) 
+then {
+  write_string("n exceeds limit")
+} 
+else {
+  var i = 0, s = 0;
+  while (i < n) do {
+    a[i] = read_int();
+    i = i + 1
+  };
+  i = n - 1;
+  while (i >= 0) do {
+    write_int(a[i]);
+    s = s + a[i];
+    i = i - 1
+  };
+  write_int(s)
+}

@@ -1,0 +1,5 @@
+var a[4] = "0123";
+write_int(a[0]);
+write_int(a[1]);
+write_int(a[2]);
+write_int(a[3])

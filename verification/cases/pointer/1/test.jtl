@@ -1,0 +1,9 @@
+var a = malloc(16);
+*a = 0;
+*(a + 8) = 0;
+*a = read_int();
+var i = 0;
+while (i < 9) do {
+  write_int(*(a + i));
+  i = i + 1
+}

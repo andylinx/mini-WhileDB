@@ -1,0 +1,24 @@
+var a[4] = {0, 1, 2, 3}, b = -1, c = malloc(32), d[4] = "0123";
+
+var i = 0;
+while (i < 4) do {
+  *(c + i * 8) = i;
+  i = i + 1
+};
+
+i = 0;
+
+while (i < 4) do {
+  write_int(a[i]);
+  i = i + 1
+};
+
+write_int(b);
+
+i = 0;
+while (i < 4) do {
+  write_int(*(c + i * 8));
+  i = i + 1
+};
+
+write_string(d)

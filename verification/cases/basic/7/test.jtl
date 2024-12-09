@@ -1,0 +1,5 @@
+var x[3] = "ABC";
+write_string(x);
+write_string("DEF");
+x="GH";
+write_string(x)

@@ -1,0 +1,33 @@
+  var n;
+  var i;
+  var flag;
+  n = read_int();
+  i = 2;
+  flag = 1;
+  while (flag && i * i <= n) do {
+    if (n % i == 0)
+    then { flag = 0 }
+    else { flag = 1 };
+    i = i + 1
+  };
+  if (flag)
+  then {
+    write_char(80);
+    write_char(82);
+    write_char(73);
+    write_char(77);
+    write_char(69);
+    write_char(10)
+  }
+  else {
+    write_char(78);
+    write_char(79);
+    write_char(78);
+    write_char(80);
+    write_char(82);
+    write_char(73);
+    write_char(77);
+    write_char(69);
+    write_char(10)
+  }
+    

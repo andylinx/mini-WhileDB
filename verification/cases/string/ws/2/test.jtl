@@ -1,0 +1,1 @@
+write_string(read_string())

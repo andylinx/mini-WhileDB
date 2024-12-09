@@ -56,6 +56,37 @@
     return TM_WC;
 }
 
+
+
+"len" { // len
+    // new tokens for key words and CL, SL
+    return TM_LEN;
+}
+
+"read_string" { // read string
+    return TM_RS;
+}
+
+"write_string" { // write string
+    return TM_WS;
+}
+
+\"([^"\\\n]|\\.)*\" { // string literal 
+    char *text = yytext + 1;        // skip opening quote
+    text[yyleng-2] = '\0';          // remove closing quote
+    yylval.sl = new_str(text, yyleng-2); 
+    return TM_SL;
+}
+
+'([^'\\\n]|\\.)' { // char literal 
+    char *text = yytext + 1;        // skip opening quote
+    text[yyleng-2] = '\0';          // remove closing quote
+    yylval.cl = text;            // store the character value
+    return TM_CL;
+}
+
+
+
 [_A-Za-z][_A-Za-z0-9]* {
     yylval.i = new_str(yytext, yyleng);
     return TM_IDENT;
@@ -141,8 +172,24 @@
     return TM_NOT;
     }
 
+
+
+"[" { // new tokens for simple symbols [] ,
+    return TM_LSB;
+    }
+
+"]" {
+    return TM_RSB;
+    }
+
+"," {
+    return TM_COMMA;
+    }
+
 [ \t\n\r]    { };
 
-.   {printf("%s",yytext);
+.   {
+    // exit(1); // not recoginized symbol
+    //  printf("%s",yytext);
      return -1; }
 %%
