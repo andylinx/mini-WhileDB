@@ -142,6 +142,7 @@ Testcases can be found at /verfication/cases with 53 cases in total, including f
 - tester_self_test
   - 4 cases to verify the correctness of tester itself.
 
+
 The tester uses three methods to justify the correctness of our impelmentation:
   1. `method=cpp`, compare output with equivalent C++ program on multiple inputs.
   1. `method=out`, compare output with manually verified output.

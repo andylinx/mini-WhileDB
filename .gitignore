@@ -1,5 +1,5 @@
 
 *.o
 while_ldb_parser/main
-/verification/tmp
 /verification/log
+/verification/tmp
