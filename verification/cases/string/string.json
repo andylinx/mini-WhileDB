@@ -18,5 +18,6 @@
   { "name": "string/ws/0" },
   { "name": "string/ws/1" },
   { "name": "string/ws/2" },
-  { "name": "string/ws/3" }
+  { "name": "string/ws/3" },
+  { "name": "string/len" }
 ]

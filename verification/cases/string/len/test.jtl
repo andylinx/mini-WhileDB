@@ -1,0 +1,2 @@
+write_int(len(""));
+write_int(len("abcd"))

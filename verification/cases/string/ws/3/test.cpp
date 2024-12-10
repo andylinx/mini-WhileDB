@@ -2,5 +2,5 @@
 #include <cstring>
 
 int main() {
-  std::cout << "\\n\n" << std::endl;
+  std::cout << "Hello\nWorld\tTabbed\rCarriage\fFormFeed\aBell\bBackspace\\LiteralBackslash\x41\077" << std::endl;
 }
