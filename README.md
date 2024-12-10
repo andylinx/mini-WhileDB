@@ -15,7 +15,7 @@ cd while_ldb_parser
 ```
 
 ## Introduction
-Besides the basic usage of WhileDB language, we some features below:
+Besides the basic usage of WhileDB language, we have further implemented some features below:
 
 1. Array
 
@@ -29,6 +29,7 @@ For array, we support array declaration, initialization via C-style initializer 
 ```
 
 2. String
+
 Our string is built on top of array.
 We support string literal, char literal (including C-style escape characters), and string I/O.
 ```cpp
@@ -48,7 +49,7 @@ write_char(a[5]);
 ### Detailed Standard
 
 #### 1. Type Specification
-  - Allint, pointer and char are considered nature numbers, the difference only occurs at function intepretation level.
+  - All int, pointer and char are considered as natural numbers, the difference only occurs at function intepretation level.
   - Each identifier (and intermediate result) holds an attribute `is_array` to indicate whether it's an array pointer.
 
 #### 2. Array class (fixed length)
