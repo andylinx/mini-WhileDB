@@ -47,6 +47,7 @@
   { "name": "string/ws/1" },
   { "name": "string/ws/2" },
   { "name": "string/ws/3" },
+  { "name": "string/len" },
   { "name": "tester_self_test/cpp", "method": "cpp" },
   { "name": "tester_self_test/output", "method": "output" },
   { "name": "tester_self_test/error", "method": "error" },
