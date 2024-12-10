@@ -1,5 +1,7 @@
-var a[4] = "\\n\n";
-write_int(a[0]);
-write_int(a[1]);
-write_int(a[2]);
-write_int(a[3])
+var a[100] = "Hello\nWorld\tTabbed\rCarriage\fFormFeed\aBell\bBackspace\\LiteralBackslash\x41\077";
+
+var i = 0;
+while (a[i] != 0) do {
+  write_int(a[i]);
+  i = i + 1
+}

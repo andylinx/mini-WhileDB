@@ -1,1 +1,1 @@
-write_string("\\n\n")
+write_string("Hello\nWorld\tTabbed\rCarriage\fFormFeed\aBell\bBackspace\\LiteralBackslash\x41\077")
