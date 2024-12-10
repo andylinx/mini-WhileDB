@@ -8,14 +8,14 @@ To get started, navigate to root dirctory.
 cd while_ldb_parser 
 make
 ```
-To run a certain source file `a.jtl`
+To execute a source file `a.jtl` with our interpreter:
 ```bash
 cd while_ldb_parser 
 ./main a.jtl
 ```
 
 ## Introduction
-Besides the basic usage of WhileDB language, we have further implemented some features below:
+In addition to the basic features of the WhileDB language, we introduce the following enhancements:
 
 1. Array
 
@@ -29,8 +29,7 @@ For array, we support array declaration, initialization via C-style initializer 
 ```
 
 2. String
-
-Our string is built on top of array.
+String is built on top of array.
 We support string literal, char literal (including C-style escape characters), and string I/O.
 ```cpp
 var a = 'a';
@@ -49,7 +48,7 @@ write_char(a[5]);
 ### Detailed Standard
 
 #### 1. Type Specification
-  - All int, pointer and char are considered as natural numbers, the difference only occurs at function intepretation level.
+  - Integers, pointers, and characters are all treated as natural numbers. Differences between them only emerge at the level of function interpretation.
   - Each identifier (and intermediate result) holds an attribute `is_array` to indicate whether it's an array pointer.
 
 #### 2. Array class (fixed length)
@@ -66,8 +65,8 @@ write_char(a[5]);
 ```
 
 #### 3. Pointer Arithmetic
-  - For array pointer ptr (`is_array = true`), ptr + n is interpreted at integer level.
-  - For non-array pointer ptr (`is_array = false`), ptr + n is interpreted at byte level.
+  - For array pointer ptr (`is_array = true`), arithmetic operations like `*(ptr + n)` are interpreted at the integer level.
+  - For non-array pointers (`is_array = false`), arithmetic operations like `*(ptr + n)` are interpreted at the byte level
 ```cpp
   var p = malloc(80), a[10], b;
   b = *(p + 8); // access 2nd int in p
@@ -82,7 +81,7 @@ write_char(a[5]);
   - String literal can be assigned to array or used at initialization.
     - copy string to array, and remaining part of array(if any) is filled with zeros.
     - if string is longer then array, raise error.
-    - no '\0' at the end of string literal by our design.
+    - by design, string literals do not include a terminating `\0` character.
   - Char literal is directly interpreted as a constant, and all its behavior comply with constant.
 ```cpp
 var a[10] = "abcd", b = '\n';
@@ -103,7 +102,7 @@ var f = 0, g[5]
     - len(S : string literal) -> var
     - len(A : array) -> var
       - return the length of argument.
-      - note that even if array A carries an string, len(A) returns the fixed length of array rather than return the first position of '\0'.
+      - Note: When applied to an array containing a string, `len(A)` returns the array's fixed length, not the position of the first `\0`.
   - EXPR **read_string**:
     - read_sring() -> string literal
       - read in a string deliminated by any white space, and return as string literal.
@@ -121,7 +120,7 @@ We have devised a comprehensive test suite to evaluate the correctness of our im
 
 Our test extensively examines every listed feature, including correctness and error capturing.
 
-Testcases can be found at /verfication/cases with 53 cases in total, including following sub-modules:
+Test cases are located in `/verification/cases`, with 53 cases in total, organized into the following sub-modules::
 
 - array
   - len
@@ -131,7 +130,7 @@ Testcases can be found at /verfication/cases with 53 cases in total, including f
   - 9 general cases used as initial correctness test at development stage.
 - decl
   - 4 cases for variable declaration initialization extension.
-- porinter
+- pointer
   - 4 cases for pointer arithmetic and dereference.
 - string
   - char literal
@@ -149,7 +148,7 @@ The tester uses three methods to justify the correctness of our impelmentation:
   1. `method=error`, expected to receive exception.
 
 
-To run full test:
+To run full test suite:
 ``` bash
 cd verification
 ./test_cases.py all_cases.json
